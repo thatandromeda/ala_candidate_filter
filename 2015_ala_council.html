@@ -1,4 +1,19 @@
 <!DOCTYPE html>
+<!-- To make this next year:
+  * Download candidate spreadsheet
+  * Search-replace all commas with an unlikely character, such as }
+  * Export to CSV
+  * Use a CSV-to-HTML converter to make the table (see inline comment for the one I used)
+  * Copy-paste this into a 2016 file
+  * Replace the table in the 2016 file with your new table
+  * Search/replace to be sure that "AILA", "APALA", "BCALA", and "CALA" are used in the ethnic
+    caucus columns, not just the fully-spelled-out versions
+  * Search/replace the } to turn it back into ,
+  * Search/replace & to &amp;
+  * Test to see if it works. Who knows what the data format is. In particular, the nth-child
+    selectors are all totally fragile around column reordering. (Protip: the nth-child selector
+    is 1-indexed because what is this, Mars?)
+-->
 <html lang="en">
   <head>
     <meta charset="utf-8">
