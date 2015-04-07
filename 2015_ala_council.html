@@ -43,31 +43,17 @@
         display: inherit;
       }
 
-      .division-show {
+      /* It's important that the hide classes go AFTER the show classes so that hiding
+         behavior overrides showing behavior (by virtue of CSS cascading) - in order to
+         AND facets together, we need to say that *all* of them must have show behavior
+         to be displayed, which means that *any* with hide behavior should trump all
+         show behavior.
+      */
+      .division-show, .rt-show, .caucus-show, .type-show, .state-show{
         display: inherit;
       }
 
-      .rt-show {
-        display: inherit;
-      }
-
-      .caucus-show {
-        display: inherit;
-      }
-
-      .type-show {
-        display: inherit;
-      }
-
-      .state-show {
-        display: inherit;
-      }
-
-      .spectrum-hide {
-        display: none;
-      }
-
-      .el-hide {
+      .division-hide, .rt-hide, .caucus-hide, .type-hide, .state-hide, .spectrum-hide, .el-hide {
         display: none;
       }
 
@@ -91,6 +77,7 @@
       .btn-default.active {
         background-color: #d0e9c6;
       }
+
     </style>
   </head>
   <body>
@@ -169,8 +156,8 @@
         <strong>Show by state</strong>
       </div>
     </div>
-    <div class="col-sm-2">
-      <em>These are OR filters.</em>
+    <div class="col-sm-2 border-left full-height">
+      <em>Divisions, RTs, caucuses, library types, and states use OR within facets and AND between facets.</em>
     </div>
 
   </div>
@@ -2871,94 +2858,190 @@ Passed proposals to Digitize Board’s Packets and will save nearly $3000 to $60
     var cells_spectrum_no = $j("tr td:nth-child(10):not(:contains(Yes))");
     var cells_el_no = $j("tr td:nth-child(11):not(:contains(Yes))");
 
+    // Initialize All The Things
+    var divisions_active = [];
+    var rts_active = [];
+    var caucuses_active = [];
+    var types_active = [];
+
+    // Set up some utility functions to DRY out our code
+
+    var listify = function(table_cell) {
+      // Converts a table cell containing comma-separated values to an array,
+      // stripping spaces. Expects the values to be a list of acronyms
+      // (e.g. "ACRL, PLA").
+      return table_cell.html().replace(/\s+/g, '').split(',');
+    }
+
+    var listify_expanded = function(table_cell) {
+      // Converts a table cell containing comma-separated values to an array,
+      // stripping spaces. Expects the values to be a list of expanded forms
+      // with acronyms in parentheses (e.g. "Social Responsibilities Round
+      // Table (SRRT)").
+      var re = /\([A-Z]+\)/g;
+      var matches = table_cell.html().match(re);
+
+      if ( matches ) {
+        // We can't get the global match to pay attention to capture groups,
+        // so we have to actually strip off the parentheses. Ew.
+        matches = matches.map(function(match) { return match.slice(1, -1); })        
+      }
+
+      return matches
+    }
+
+    var update_active_list = function(button, active_list) {
+      // Updates the list of active items in the given facet to add or remove
+      // the current item, depending on the status of the button just clicked.
+      var item = button.attr('id');
+      if ( button.hasClass('active') ) {
+        active_list.push(item);
+      } else {
+        var idx = active_list.indexOf(item);
+        active_list.splice(idx, 1);
+      }
+    }
+
+    var intersect_lists = function(list1, list2) {
+        // Look at the intersection of this table cell's list of affiliations
+        // and the overall list of active affiliations. Do they have at least
+        // one in common?
+
+        if ( !list1 ) {
+          // If list1 is empty (e.g. the candidate doesn't belong to any RTs),
+          // the intersection is definitely empty.
+          return false;
+        }
+
+        var bool = $j.grep(list1, function(i) {
+            return $j.inArray(i, list2) > -1;
+        }).length > 0;
+        return bool;
+    }
+
     $j('#filter-divisions button').click(function() {
       $j('tr').removeClass('initial-show');
-
-      var division = $j(this).attr('id');
       $j(this).toggleClass('active');
-      var cells = $j("tr td:nth-child(7):contains(" + division + ")");
-      if ( $j(this).hasClass('active') ) {
-        cells.each(function () {
-          var row = $j(this).parent('tr');
+
+      update_active_list($j(this), divisions_active);
+
+      // Examine the table cells containing division membership info.
+      var division_cells = $j('td:nth-child(7)');
+      division_cells.each(function() {
+        var row = $j(this).parent('tr'); // The row containing this cell.
+
+        var cell_divs = listify($j(this));
+        var bool = intersect_lists(cell_divs, divisions_active);
+
+        // Add the divisional show or hide class to this row, depending on
+        // whether the division lists had any divisions in common.
+        if ( bool ) {
           if ( !row.hasClass('division-show') ) {
             row.addClass('division-show');
           }
-        });
-      } else {
-        cells.each(function () {
-          var row = $j(this).parent('tr');
-          row.removeClass('division-show');
-        });
-      }
+          row.removeClass('division-hide');
+        } else {
+          row.addClass('division-hide');
+        }
+      });
     });
 
     $j('#filter-rts button').click(function() {
       $j('tr').removeClass('initial-show');
-
-      var rt = $j(this).attr('id');
       $j(this).toggleClass('active');
-      var cells = $j("tr td:nth-child(8):contains(" + rt + ")");
-      if ( $j(this).hasClass('active') ) {
-        cells.each(function () {
-          var row = $j(this).parent('tr');
+
+      update_active_list($j(this), rts_active);
+
+      var rt_cells = $j('td:nth-child(8)');
+
+      rt_cells.each(function() {
+        var row = $j(this).parent('tr'); // The row containing this cell.
+
+        var cell_rts = listify_expanded($j(this));
+        var bool = intersect_lists(cell_rts, rts_active);
+
+        if ( bool ) {
           if ( !row.hasClass('rt-show') ) {
             row.addClass('rt-show');
           }
-        });
-      } else {
-        cells.each(function () {
-          var row = $j(this).parent('tr');
-          row.removeClass('rt-show');
-        });
-      }
+          row.removeClass('rt-hide');
+        } else {
+          row.addClass('rt-hide');
+        }
+      });
     });
 
     $j('#filter-caucuses button').click(function() {
       $j('tr').removeClass('initial-show');
-
-      var caucus = $j(this).attr('id');
       $j(this).toggleClass('active');
-      var cells = $j("tr td:nth-child(9):contains(" + caucus + ")");
-      if ( $j(this).hasClass('active') ) {
-        cells.each(function () {
-          var row = $j(this).parent('tr');
+
+      update_active_list($j(this), caucuses_active);
+
+      var caucus_cells = $j("tr td:nth-child(9)");
+      caucus_cells.each(function() {
+        var row = $j(this).parent('tr'); // The row containing this cell.
+
+        var cell_caucuses = listify_expanded($j(this));
+
+        // REFORMA is a special case because it's not an acronym in
+        // parentheses, so it won't be caught by our regexp. We need to make
+        // sure it's still in the list of caucuses for this cell if applicable.
+        if ( $j(this).html().indexOf('REFORMA') >= 0 ) {
+          if ( cell_caucuses ) {
+            cell_caucuses.push('REFORMA');            
+          } else {
+            // If REFORMA is the only caucus in the cell, cell_caucuses will
+            // be null and pushing to it will throw an error.
+            cell_caucuses = ['REFORMA'];
+          }
+        }
+
+        var bool = intersect_lists(cell_caucuses, caucuses_active);
+
+        if ( bool ) {
           if ( !row.hasClass('caucus-show') ) {
             row.addClass('caucus-show');
           }
-        });
-      } else {
-        cells.each(function () {
-          var row = $j(this).parent('tr');
-          row.removeClass('caucus-show');
-        });
-      }
+          row.removeClass('caucus-hide');
+        } else {
+          row.addClass('caucus-hide');
+        }
+      });
     });
 
     $j('#filter-types button').click(function() {
       $j('tr').removeClass('initial-show');
-
-      var type = $j(this).attr('id');
-
       $j(this).toggleClass('active');
-      if (type == 'Other') {
-        var cells = $j("tr td:nth-child(4):not(:contains(Academic)):not(:contains(Public)):not(:contains(School))");
-      } else {
-        var cells = $j("tr td:nth-child(4):contains(" + type + ")");
-      }
 
-      if ( $j(this).hasClass('active') ) {
-        cells.each(function () {
-          var row = $j(this).parent('tr');
+      update_active_list($j(this), types_active);
+
+      var type_cells = $j("tr td:nth-child(4)");
+
+      type_cells.each(function() {
+        var row = $j(this).parent('tr'); // The row containing this cell.
+
+        var cell_types = listify($j(this));
+
+        // Anything other than Academic, Public, or School maps to Other.
+        cell_types = cell_types.map(function(type) {
+          if ( type == 'Academic' || type == 'Public' || type == 'School' ) {
+            return type
+          } else {
+            return 'Other'
+          }
+        });
+
+        var bool = intersect_lists(cell_types, types_active);
+
+        if ( bool ) {
           if ( !row.hasClass('type-show') ) {
             row.addClass('type-show');
           }
-        });
-      } else {
-        cells.each(function () {
-          var row = $j(this).parent('tr');
-          row.removeClass('type-show');
-        });
-      }
+          row.removeClass('type-hide');
+        } else {
+          row.addClass('type-hide');
+        }
+      });
     });
 
     $j('#spectrum').click(function () {
