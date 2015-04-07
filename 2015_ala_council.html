@@ -49,7 +49,7 @@
          to be displayed, which means that *any* with hide behavior should trump all
          show behavior.
       */
-      .division-show, .rt-show, .caucus-show, .type-show, .state-show{
+      .division-show, .rt-show, .caucus-show, .type-show, .state-show, .spectrum-show, .el-show {
         display: inherit;
       }
 
@@ -86,6 +86,7 @@
     </style>
   </head>
   <body>
+
   <header class="jumbotron">
     <div class="container">
       <h1>ALA Council Candidate Sorter 2015</h1>
@@ -94,9 +95,13 @@
 
   <div class="container">
 
+  <!-- begin filter area -->
+  <div class="row filter-buttons">
 
-  <div class="row">
+    <!-- begin filter button panels -->
     <div class="col-sm-10">
+
+      <!-- begin first row of filters -->
       <div class="row">
         <div class="col-sm-4">
           <div class="panel panel-default">
@@ -163,7 +168,9 @@
           </div>
         </div>
       </div>
+      <!-- end first row of filters -->
 
+      <!-- begin second row of filters -->
       <div class="row">
 
         <div class="col-sm-4">
@@ -189,19 +196,25 @@
             </div>
           </div>
         </div>
-
       </div>
+      <!-- end second row of filters -->
 
     </div>
+    <!-- end filter button panels -->
+
+    <!-- begin filter logic explainer -->
     <div class="col-sm-2 border-left full-height">
       <em>Divisions, RTs, caucuses, library types, and states use OR within facets and AND between facets.</em>
     </div>
+    <!-- end filter logic explainer -->
 
   </div>
+  <!-- end filter area -->
 
   <hr />
 
-  <div class="row">
+  <!-- begin spectrum/EL button area -->
+  <div class="row filter-buttons">
     <div class="col-sm-10">
       <button type="button" class="btn btn-default" id="spectrum">Spectrum scholars only</button>
       <button type="button" class="btn btn-default" id="EL">Emerging Leaders only</button>      
@@ -210,6 +223,7 @@
       <em>These are Booleans.</em>
     </div>
   </div>
+  <!-- end spectrum/EL button area -->
 
   <hr />
 
@@ -2892,16 +2906,21 @@ Passed proposals to Digitize Board’s Packets and will save nearly $3000 to $60
 
   $j(document).ready(function() {
 
-    var cells_spectrum_no = $j("tr td:nth-child(10):not(:contains(Yes))");
-    var cells_el_no = $j("tr td:nth-child(11):not(:contains(Yes))");
-
     // Initialize All The Things
+    // ------------------------------------------------------------------------
+
+    var cells_spectrum_no = $j("tr td:nth-child(10):contains('No')");
+    var cells_el_no = $j("tr td:nth-child(11):contains('No')");
+    var cells_spectrum_yes = $j("tr td:nth-child(10):contains('Yes')");
+    var cells_el_yes = $j("tr td:nth-child(11):contains('Yes')");
+
     var divisions_active = [];
     var rts_active = [];
     var caucuses_active = [];
     var types_active = [];
 
     // Set up some utility functions to DRY out our code
+    // ------------------------------------------------------------------------
 
     var listify = function(table_cell) {
       // Converts a table cell containing comma-separated values to an array,
@@ -2956,8 +2975,62 @@ Passed proposals to Digitize Board’s Packets and will save nearly $3000 to $60
         return bool;
     }
 
-    $j('#filter-divisions button').click(function() {
+    var boolean_filter = function(button, facet) {
+      if (!(facet == 'spectrum') && !(facet=='el')) {
+        // Just in case, since eval() is a nuclear weapon.
+        return
+      }
+
+      button.toggleClass('active');
+      cells_no = eval("cells_" + facet + "_no");
+      cells_yes = eval("cells_" + facet + "_yes");
+
+      if ( button.hasClass('active') ) {
+        cells_no.parent('tr').addClass(facet + '-hide');
+        cells_yes.parent('tr').addClass(facet + '-show');
+      } else {
+        cells_no.parent('tr').removeClass(facet + '-hide');
+        cells_no.parent('tr').addClass(facet + '-show');
+      }
+
+    }
+
+    // Set up state filter buttons. Build them from the list of states actually
+    // represented rather than hand-coding a ton of states.
+    //
+    // ------------------------------------------------------------------------
+
+    var states = [];
+    var state_columns = $j("tr td:nth-child(20)");
+    state_columns.each(function() {
+      var state = $j(this).html();
+      if ( states.indexOf(state) < 0 && state != 'State' ) {
+        states[states.length] = state;
+      }
+    });
+    states.sort();
+
+    var state_filter = $j('#filter-states');
+    function createStateButtons(element, index, array) {
+      state_filter.append('<button type="button" class="btn btn-default" id="' + element + '">' + element +'</button> ');
+    }
+    states.forEach(createStateButtons);
+    state_filter.append("<p><em>(Not all states have candidates in this election.)</em></p>");
+
+    // On pageload all candidates are shown; the first time any filters are
+    // activated, they should be hidden, and then selectively revealed only
+    // where consistent with filters.
+    //
+    // ------------------------------------------------------------------------
+
+    $j('.filter-buttons button').click(function() {
       $j('tr').removeClass('initial-show');
+    });
+
+    // Below here, we filter things when users click buttons.
+    // ------------------------------------------------------------------------
+
+    $j('#filter-divisions button').click(function() {
       $j(this).toggleClass('active');
 
       update_active_list($j(this), divisions_active);
@@ -2984,7 +3057,6 @@ Passed proposals to Digitize Board’s Packets and will save nearly $3000 to $60
     });
 
     $j('#filter-rts button').click(function() {
-      $j('tr').removeClass('initial-show');
       $j(this).toggleClass('active');
 
       update_active_list($j(this), rts_active);
@@ -3009,7 +3081,6 @@ Passed proposals to Digitize Board’s Packets and will save nearly $3000 to $60
     });
 
     $j('#filter-caucuses button').click(function() {
-      $j('tr').removeClass('initial-show');
       $j(this).toggleClass('active');
 
       update_active_list($j(this), caucuses_active);
@@ -3047,7 +3118,6 @@ Passed proposals to Digitize Board’s Packets and will save nearly $3000 to $60
     });
 
     $j('#filter-types button').click(function() {
-      $j('tr').removeClass('initial-show');
       $j(this).toggleClass('active');
 
       update_active_list($j(this), types_active);
@@ -3082,41 +3152,12 @@ Passed proposals to Digitize Board’s Packets and will save nearly $3000 to $60
     });
 
     $j('#spectrum').click(function () {
-      $j(this).toggleClass('active');
-      if ( $j(this).hasClass('active') ) {
-        cells_spectrum_no.parent('tr').addClass('spectrum-hide');
-      } else {
-        cells_spectrum_no.parent('tr').removeClass('spectrum-hide');
-      }
+      boolean_filter($j(this), 'spectrum');
     });
 
     $j('#EL').click(function () {
-      $j(this).toggleClass('active');
-      if ( $j(this).hasClass('active') ) {
-        cells_el_no.parent('tr').addClass('el-hide');
-      } else {
-        cells_el_no.parent('tr').removeClass('el-hide');
-      }
+      boolean_filter($j(this), 'el');
     });
-
-    // Set up state filter buttons. Build them from the list of states actually
-    // represented rather than hand-coding a ton of states.
-    var states = [];
-    var state_columns = $j("tr td:nth-child(20)");
-    state_columns.each(function() {
-      var state = $j(this).html();
-      if ( states.indexOf(state) < 0 && state != 'State' ) {
-        states[states.length] = state;
-      }
-    });
-    states.sort();
-
-    var state_filter = $j('#filter-states');
-    function createStateButtons(element, index, array) {
-      state_filter.append('<button type="button" class="btn btn-default" id="' + element + '">' + element +'</button> ');
-    }
-    states.forEach(createStateButtons);
-    state_filter.append("<p><em>(Not all states have candidates in this election.)</em></p>");
 
     $j('#filter-states button').click(function() {
       $j('tr').removeClass('initial-show');
