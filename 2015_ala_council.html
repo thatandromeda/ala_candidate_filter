@@ -2964,7 +2964,8 @@ Passed proposals to Digitize Board’s Packets and will save nearly $3000 to $60
     var intersect_lists = function(list1, list2) {
         // Look at the intersection of this table cell's list of affiliations
         // and the overall list of active affiliations. Do they have at least
-        // one in common?
+        // one in common? We only want to show table rows where the relevant
+        // cell has at least one of the user-selected affiliations.
 
         if ( !list1 ) {
           // If list1 is empty (e.g. the candidate doesn't belong to any RTs),
@@ -2979,6 +2980,7 @@ Passed proposals to Digitize Board’s Packets and will save nearly $3000 to $60
     }
 
     var boolean_filter = function(button, facet) {
+      // Handles the binary filters (spectrum y/n and emerging leader y/n).
       if (!(facet == 'spectrum') && !(facet=='el')) {
         // Just in case, since eval() is a nuclear weapon.
         return
