@@ -2918,6 +2918,9 @@ Passed proposals to Digitize Board’s Packets and will save nearly $3000 to $60
     var rts_active = [];
     var caucuses_active = [];
     var types_active = [];
+    var states_active = [];
+
+
 
     // Set up some utility functions to DRY out our code
     // ------------------------------------------------------------------------
@@ -2995,6 +2998,8 @@ Passed proposals to Digitize Board’s Packets and will save nearly $3000 to $60
 
     }
 
+
+
     // Set up state filter buttons. Build them from the list of states actually
     // represented rather than hand-coding a ton of states.
     //
@@ -3017,6 +3022,8 @@ Passed proposals to Digitize Board’s Packets and will save nearly $3000 to $60
     states.forEach(createStateButtons);
     state_filter.append("<p><em>(Not all states have candidates in this election.)</em></p>");
 
+
+
     // On pageload all candidates are shown; the first time any filters are
     // activated, they should be hidden, and then selectively revealed only
     // where consistent with filters.
@@ -3027,8 +3034,12 @@ Passed proposals to Digitize Board’s Packets and will save nearly $3000 to $60
       $j('tr').removeClass('initial-show');
     });
 
+
+
     // Below here, we filter things when users click buttons.
     // ------------------------------------------------------------------------
+
+    // Le multiselect facets --------------------------------------------------
 
     $j('#filter-divisions button').click(function() {
       $j(this).toggleClass('active');
@@ -3151,33 +3162,38 @@ Passed proposals to Digitize Board’s Packets and will save nearly $3000 to $60
       });
     });
 
+    $j('#filter-states button').click(function() {
+      $j(this).toggleClass('active');
+
+      update_active_list($j(this), states_active);
+
+      var state_cells = $j("tr td:nth-child(20)");
+
+      state_cells.each(function() {
+        var row = $j(this).parent('tr'); // The row containing this cell.
+
+        var cell_divs = listify($j(this));
+        var bool = intersect_lists(cell_divs, states_active);
+
+        if ( bool ) {
+          if ( !row.hasClass('state-show') ) {
+            row.addClass('state-show');
+          }
+          row.removeClass('state-hide');
+        } else {
+          row.addClass('state-hide');
+        }
+      });
+    });
+
+    // Le boolean facets ------------------------------------------------------
+
     $j('#spectrum').click(function () {
       boolean_filter($j(this), 'spectrum');
     });
 
     $j('#EL').click(function () {
       boolean_filter($j(this), 'el');
-    });
-
-    $j('#filter-states button').click(function() {
-      $j('tr').removeClass('initial-show');
-
-      var state = $j(this).attr('id');
-      $j(this).toggleClass('active');
-      var cells = $j("tr td:nth-child(20):contains(" + state + ")");
-      if ( $j(this).hasClass('active') ) {
-        cells.each(function () {
-          var row = $j(this).parent('tr');
-          if ( !row.hasClass('state-show') ) {
-            row.addClass('state-show');
-          }
-        });
-      } else {
-        cells.each(function () {
-          var row = $j(this).parent('tr');
-          row.removeClass('state-show');
-        });
-      }
     });
 
   });
