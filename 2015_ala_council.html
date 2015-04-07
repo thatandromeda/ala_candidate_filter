@@ -78,83 +78,120 @@
         background-color: #d0e9c6;
       }
 
+      header.jumbotron {
+        background-color: rgb(92, 184, 92);
+        color: white;
+      }
+
     </style>
   </head>
   <body>
+  <header class="jumbotron">
+    <div class="container">
+      <h1>ALA Council Candidate Sorter 2015</h1>
+    </div>
+  </header>
+
   <div class="container">
 
-  <header class="jumbotron">
-    <h1>ALA Council Candidate Sorter 2015</h1>
-  </header>
 
   <div class="row">
     <div class="col-sm-10">
-      <div id="filter-divisions">
-        <strong>Show by division</strong>
-        <button type="button" class="btn btn-default" id="AASL">AASL</button>
-        <button type="button" class="btn btn-default" id="ALCTS">ALCTS</button>
-        <button type="button" class="btn btn-default" id="ALSC">ALSC</button>
-        <button type="button" class="btn btn-default" id="ACRL">ACRL</button>
-        <button type="button" class="btn btn-default" id="ASCLA">ASCLA</button>
-        <button type="button" class="btn btn-default" id="LITA">LITA</button>
-        <button type="button" class="btn btn-default" id="LLAMA">LLAMA</button>
-        <button type="button" class="btn btn-default" id="PLA">PLA</button>
-        <button type="button" class="btn btn-default" id="RUSA">RUSA</button>
-        <button type="button" class="btn btn-default" id="UNITED">United</button>
-        <button type="button" class="btn btn-default" id="YALSA">YALSA</button>
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Divisions</h3>
+            </div>
+            <div class="panel-body" id="filter-divisions">
+              <button type="button" class="btn btn-default" id="AASL">AASL</button>
+              <button type="button" class="btn btn-default" id="ALCTS">ALCTS</button>
+              <button type="button" class="btn btn-default" id="ALSC">ALSC</button>
+              <button type="button" class="btn btn-default" id="ACRL">ACRL</button>
+              <button type="button" class="btn btn-default" id="ASCLA">ASCLA</button>
+              <button type="button" class="btn btn-default" id="LITA">LITA</button>
+              <button type="button" class="btn btn-default" id="LLAMA">LLAMA</button>
+              <button type="button" class="btn btn-default" id="PLA">PLA</button>
+              <button type="button" class="btn btn-default" id="RUSA">RUSA</button>
+              <button type="button" class="btn btn-default" id="UNITED">United</button>
+              <button type="button" class="btn btn-default" id="YALSA">YALSA</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Round Tables</h3>
+            </div>
+            <div class="panel-body" id="filter-rts">
+              <button type="button" class="btn btn-default" id="EMIERT">EMIERT</button>
+              <button type="button" class="btn btn-default" id="ERT">ERT</button>
+              <button type="button" class="btn btn-default" id="FAFLRT">FAFLRT</button>
+              <button type="button" class="btn btn-default" id="GAMERT">GAMERT</button>
+              <button type="button" class="btn btn-default" id="GLBTRT">GLBTRT</button>
+              <button type="button" class="btn btn-default" id="GODORT">GODORT</button>
+              <button type="button" class="btn btn-default" id="IFRT">IFRT</button>
+              <button type="button" class="btn btn-default" id="IRRT">IRRT</button>
+              <button type="button" class="btn btn-default" id="LEARNRT">LearnRT</button>
+              <button type="button" class="btn btn-default" id="LIRT">LIRT</button>
+              <button type="button" class="btn btn-default" id="LRRT">LRRT</button>
+              <button type="button" class="btn btn-default" id="LSSIRT">LSSIRT</button>
+              <button type="button" class="btn btn-default" id="MAGIRT">MAGIRT</button>
+              <button type="button" class="btn btn-default" id="NMRT">NMRT</button>
+              <button type="button" class="btn btn-default" id="RMRT">RMRT</button>
+              <button type="button" class="btn btn-default" id="SRRT">SRRT</button>
+              <button type="button" class="btn btn-default" id="SORT">SORT</button>
+              <button type="button" class="btn btn-default" id="SUSTAINRT">SustainRT</button>
+              <button type="button" class="btn btn-default" id="VRT">VRT</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Ethnic Caucuses</h3>
+            </div>
+            <div class="panel-body" id="filter-caucuses">
+              <button type="button" class="btn btn-default" id="AILA">AILA</button>
+              <button type="button" class="btn btn-default" id="APALA">APALA</button>
+              <button type="button" class="btn btn-default" id="BCALA">BCALA</button>
+              <button type="button" class="btn btn-default" id="CALA">CALA</button>
+              <button type="button" class="btn btn-default" id="REFORMA">REFORMA</button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <hr />
+      <div class="row">
 
-      <div id="filter-rts">
-        <strong>Show by round table</strong>
-        <button type="button" class="btn btn-default" id="EMIERT">EMIERT</button>
-        <button type="button" class="btn btn-default" id="ERT">ERT</button>
-        <button type="button" class="btn btn-default" id="FAFLRT">FAFLRT</button>
-        <button type="button" class="btn btn-default" id="GAMERT">GAMERT</button>
-        <button type="button" class="btn btn-default" id="GLBTRT">GLBTRT</button>
-        <button type="button" class="btn btn-default" id="GODORT">GODORT</button>
-        <button type="button" class="btn btn-default" id="IFRT">IFRT</button>
-        <button type="button" class="btn btn-default" id="IRRT">IRRT</button>
-        <button type="button" class="btn btn-default" id="LEARNRT">LearnRT</button>
-        <button type="button" class="btn btn-default" id="LIRT">LIRT</button>
-        <button type="button" class="btn btn-default" id="LRRT">LRRT</button>
-        <button type="button" class="btn btn-default" id="LSSIRT">LSSIRT</button>
-        <button type="button" class="btn btn-default" id="MAGIRT">MAGIRT</button>
-        <button type="button" class="btn btn-default" id="NMRT">NMRT</button>
-        <button type="button" class="btn btn-default" id="RMRT">RMRT</button>
-        <button type="button" class="btn btn-default" id="SRRT">SRRT</button>
-        <button type="button" class="btn btn-default" id="SORT">SORT</button>
-        <button type="button" class="btn btn-default" id="SUSTAINRT">SustainRT</button>
-        <button type="button" class="btn btn-default" id="VRT">VRT</button>
+        <div class="col-sm-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Library Types</h3>
+            </div>
+            <div class="panel-body" id="filter-types">
+              <button type="button" class="btn btn-default" id="Academic">Academic</button>
+              <button type="button" class="btn btn-default" id="Public">Public</button>
+              <button type="button" class="btn btn-default" id="School">School</button>
+              <button type="button" class="btn btn-default" id="Other">Other</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-8">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">States</h3>
+            </div>
+            <div class="panel-body" id="filter-states">
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <hr />
-
-      <div id="filter-caucuses">
-        <strong>Show by ethnic caucus</strong>
-        <button type="button" class="btn btn-default" id="AILA">AILA</button>
-        <button type="button" class="btn btn-default" id="APALA">APALA</button>
-        <button type="button" class="btn btn-default" id="BCALA">BCALA</button>
-        <button type="button" class="btn btn-default" id="CALA">CALA</button>
-        <button type="button" class="btn btn-default" id="REFORMA">REFORMA</button>
-      </div>
-
-      <hr />
-
-      <div id="filter-types">
-        <strong>Show by library type</strong>
-        <button type="button" class="btn btn-default" id="Academic">Academic</button>
-        <button type="button" class="btn btn-default" id="Public">Public</button>
-        <button type="button" class="btn btn-default" id="School">School</button>
-        <button type="button" class="btn btn-default" id="Other">Other</button>
-      </div>
-
-      <hr />
-
-      <div id="filter-states">
-        <strong>Show by state</strong>
-      </div>
     </div>
     <div class="col-sm-2 border-left full-height">
       <em>Divisions, RTs, caucuses, library types, and states use OR within facets and AND between facets.</em>
