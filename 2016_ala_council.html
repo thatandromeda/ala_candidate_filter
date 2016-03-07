@@ -58,6 +58,11 @@
         display: none;
       }
 
+      tr.always-show {
+        /* Header row. */
+        display: inherit;
+      }
+
       .wide {
         min-width: 200px;
       }
@@ -237,7 +242,7 @@
 
   <table class="table table-hover table-bordered">
          <!--Created with XmlGrid Free Online XML Editor (http://xmlgrid.net)-->
-         <tr class="initial-show">
+         <tr class="always-show">
                <td>First Name</td>
                <td>Last Name</td>
                <td>Current Position</td>
