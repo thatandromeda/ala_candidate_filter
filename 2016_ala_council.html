@@ -9,10 +9,11 @@
   * Search/replace to be sure that "AILA", "APALA", "BCALA", and "CALA" are used in the ethnic
     caucus columns, not just the fully-spelled-out versions
   * Search/replace the } to turn it back into ,
-  * Search/replace &amp; to &amp;amp;
+  * Search/replace &amp; to &amp; (and then fix the && in the Javascript, and this line)
   * Test to see if it works. Who knows what the data format is. In particular, the nth-child
     selectors are all totally fragile around column reordering. (Protip: the nth-child selector
     is 1-indexed because what is this, Mars?)
+  * Search/replace <tr> with <tr class="initial-show"> (except in this line)
   * Update the voting button if needed.
 -->
 <html lang="en">
@@ -89,7 +90,7 @@
 
   <header class="jumbotron">
     <div class="container">
-      <h1>ALA Council Candidate Sorter 2015</h1>
+      <h1>ALA Council Candidate Sorter 2016</h1>
     </div>
   </header>
 
@@ -236,7 +237,7 @@
 
   <table class="table table-hover table-bordered">
          <!--Created with XmlGrid Free Online XML Editor (http://xmlgrid.net)-->
-         <tr>
+         <tr class="initial-show">
                <td>First Name</td>
                <td>Last Name</td>
                <td>Current Position</td>
@@ -258,7 +259,7 @@
                <td>Member of ALA since</td>
                <td>State</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Ismail</td>
                <td>Abdullahi</td>
                <td>Associate Professor, North Carolina Central University, School of Library and Information Sciences, Durham, North Carolina</td>
@@ -293,7 +294,7 @@ Ismail Abdullahi"The Future of LIS Education in Developing Countries: The Road A
                <td>1985</td>
                <td>NC</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Hilary</td>
                <td>Albert</td>
                <td>Reference Librarian / Librarian 2, Mahopac Public Library, Mahopac, New York</td>
@@ -319,7 +320,7 @@ Ithaca College, BFA in Music, 1988</td>
                <td>2004</td>
                <td>NY</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Sonia</td>
                <td>Alcantara-Antoine</td>
                <td>Public Services Manager, Virginia Beach Public Library, Virginia Beach, Virginia</td>
@@ -362,7 +363,7 @@ We have to make the case that libraries matter, are relevant, and can make a dif
                <td>2005</td>
                <td>VA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Oscar</td>
                <td>Baeza</td>
                <td>Librarian/Associate Professor, El Paso Community College, El Paso, TX</td>
@@ -387,7 +388,7 @@ https://www.facebook.com/OBALAcouncilor/</td>
                <td>2009</td>
                <td>TX</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Robert</td>
                <td>Banks</td>
                <td>Chief Operations Officer, Topeka and Shawnee County Public Library, Topeka, Kansas</td>
@@ -409,7 +410,7 @@ https://www.facebook.com/OBALAcouncilor/</td>
                <td>1989</td>
                <td>KS</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Gladys</td>
                <td>Smiley Bell</td>
                <td>Rare Book Librarian, Harvey Library/Hampton University, Hampton, Virginia</td>
@@ -436,7 +437,7 @@ Gladys Smiley Bell, et. al.: "African Americans, the information age, and ALA go
                <td>1984</td>
                <td>VA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Jennifer C.</td>
                <td>Boettcher</td>
                <td>Reference Librarian, Georgetown University, Washington, DC</td>
@@ -519,7 +520,7 @@ See some of my scholarship at http://guides.library.georgetown.edu/c.php?g=75750
                <td>1992</td>
                <td>DC</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Polly D</td>
                <td>Boruff-Jones</td>
                <td>Dean of the Library, Indiana University Kokomo, Kokomo, Indiana</td>
@@ -549,7 +550,7 @@ Mark, A. E. &amp; Boruff-Jones, P. D.: "Information Literacy and Student Engagem
                <td>2001</td>
                <td>IN</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Steve</td>
                <td>Brantley</td>
                <td>Associate Professor and Head, Reference and Instruction Services, Eastern Illinois University, Charleston, Illinois</td>
@@ -613,7 +614,7 @@ Political trends toward government service cut-backs disproportionately impact s
                <td>1999</td>
                <td>IL</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Ty R.</td>
                <td>Burns</td>
                <td>School Library &amp; Children's/ YA Literature Consultant, TyRB Library &amp; Literature Services, Pearland, Texas</td>
@@ -654,7 +655,7 @@ I have served in various capacities at the state and national level, but now I t
                <td>2001</td>
                <td>TX</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Nick</td>
                <td>Buron</td>
                <td>Vice President, Public Library Services, Queens Library, New York, NY</td>
@@ -715,7 +716,7 @@ Buron, Nicolas. “Mentoring New York City’s Future Librarians,” Voice of Yo
                <td>1992</td>
                <td>NY</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Melissa I.</td>
                <td>Cardenas-Dow</td>
                <td>Reference &amp; Instruction Librarian, University of California, Riverside, Riverside, California</td>
@@ -737,7 +738,7 @@ Buron, Nicolas. “Mentoring New York City’s Future Librarians,” Voice of Yo
                <td>2004</td>
                <td>CA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Kathy</td>
                <td>Carroll</td>
                <td>Library Media Specialist, Westwood High School, Blythewood, SC</td>
@@ -791,7 +792,7 @@ http://westwoodhslibrary.weebly.com</td>
                <td>2006</td>
                <td>SC</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Maria</td>
                <td>Taesil Hudson Carpenter</td>
                <td>Director of Libraries, Santa Monica Public Library, Santa Monica, CA</td>
@@ -821,7 +822,7 @@ Author, Cheerleader, Opportunity Seeker, and Master Strategist: ARL Directors as
                <td>2000</td>
                <td>CA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Rachael</td>
                <td>Clukey</td>
                <td>Reference Librarian, Delaware County District Library, Delaware, OH</td>
@@ -845,7 +846,7 @@ Library Assistant, Upper Arlington Public Library, Upper Arlington, OH, 8/08-4/0
                <td>2015</td>
                <td>OH</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>James D.</td>
                <td>Cooper</td>
                <td>Director, Salt Lake County Library Services, West Jordan, Utah</td>
@@ -869,7 +870,7 @@ Similar to our libraries, ALA is continually challenged to demonstrate its worth
                <td>2001</td>
                <td>UT</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Amber</td>
                <td>Creger</td>
                <td>Youth Department Director, Schaumburg Township District Library, Schaumburg, IL</td>
@@ -899,7 +900,7 @@ As a profession, we can’t continue to work under the guise of “we’ve alway
                <td>2005</td>
                <td>IL</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Jeremy</td>
                <td>Darrington</td>
                <td>Politics Librarian, 2011–present, Princeton University Library, Princeton, NJ</td>
@@ -948,7 +949,7 @@ Helped launch and successfully grow the first neighborhood branch of the Boise P
                <td>2010</td>
                <td>NJ</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Megan</td>
                <td>Dazey</td>
                <td>Library Services Manager, Puyallup Public Library, Puyallup, WA</td>
@@ -972,7 +973,7 @@ William J Bowerman Processing Archivist, University of Oregon, 2006-2007</td>
                <td>2005</td>
                <td>WA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Ana</td>
                <td>Elisa de Campos Salles</td>
                <td>Adult &amp; Teen Services Librarian, DC Public Library, Washington, DC</td>
@@ -1022,7 +1023,7 @@ I hope to bring this experience to Council and work closely with my colleagues o
                <td>2011</td>
                <td>DC</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Megan Elizabeth</td>
                <td>Drake</td>
                <td>Implementation Consultant, Ex Libris Group, Portland, OR</td>
@@ -1061,7 +1062,7 @@ If elected to Council, I will continue this targeted work on these critical issu
                <td>2011</td>
                <td>OR</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Tyler</td>
                <td>Dzuba</td>
                <td>Head, Physics-Optics-Astronomy Library; Interim Program Coordinator, Carlson Student Research Space, University of Rochester, River Campus Libraries, Rochester, NY</td>
@@ -1105,7 +1106,7 @@ For these reasons, I ask for your vote. Thank you for your consideration!</td>
                <td>2012</td>
                <td>NY</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Joseph M.</td>
                <td>Eagan</td>
                <td>Library Manager (Retired), Montgomery County Public Libraries, Rockville, Maryland</td>
@@ -1133,7 +1134,7 @@ Contributor, "Readers’ Guide to Lesbian and Gay Studies", edited by Timothy F.
                <td>1989</td>
                <td>MD</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Valerie Ann</td>
                <td>Edwards</td>
                <td>Educational Outreach &amp; Training Specialist, TeachingBooks.net, Madison, Wisconsin</td>
@@ -1159,7 +1160,7 @@ Edwards, Valerie. "Formative Assessment in the High School IMC," KnowledgeQuest 
                <td>1997</td>
                <td>WI</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Erica</td>
                <td>Findley</td>
                <td>Cataloging | Metadata Librarian, Multnomah County Library, Portland, Oregon</td>
@@ -1188,7 +1189,7 @@ As a board member of EveryLibrary, I am current on the challenges our public ins
                <td>2007</td>
                <td>OR</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Mario M.</td>
                <td>Gonzalez</td>
                <td>Director, Passaic Public Library, Passaic, NJ</td>
@@ -1214,7 +1215,7 @@ Como Interesar a Sus Hijos en Leer" (How to Interest Your Child in Reading), La 
                <td>1985</td>
                <td>NJ</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Mel</td>
                <td>Gooch</td>
                <td>Learning and Instruction Coordinator, San Francisco Public Library, San Francisco, CA</td>
@@ -1242,7 +1243,7 @@ New York University, New York, NY Bachelor of Arts, 1996</td>
                <td>2002</td>
                <td>CA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Terri</td>
                <td>Grief</td>
                <td>High School Librarian, McCracken County High School, Paducah, KY</td>
@@ -1270,7 +1271,7 @@ Author. "Experience Education Evolution." Knowledge Quest, Volume 43, Number 4, 
                <td>1997</td>
                <td>KY</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Clem</td>
                <td>Guthro</td>
                <td>Director of Libraries, Colby College, Waterville, ME</td>
@@ -1305,7 +1306,7 @@ Maine Shared Collections Cooperative. Executive Committee. Chair, 2014-</td>
                <td>2004</td>
                <td>ME</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Rochelle</td>
                <td>Hartman</td>
                <td>Adult Services Manager, La Crosse Public Library, La Crosse, Wisconsin</td>
@@ -1343,7 +1344,7 @@ What keeps me engaged, buoyed, and passionate though, are the dozens of small th
                <td>2000</td>
                <td>WI</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>April Michelle</td>
                <td>Hathcock</td>
                <td>Scholarly Communications Librarian, New York University Libraries, New York, New York</td>
@@ -1378,7 +1379,7 @@ twitter.com/AprilHathcock</td>
                <td>2012</td>
                <td>NY</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Pat</td>
                <td>Hawthorne</td>
                <td>Associate Dean for Research &amp; Education, University of Nevada, Las Vegas (UNLV) Libraries, Las Vegas, NV</td>
@@ -1406,7 +1407,7 @@ Ad Hoc Task Force on Recruitment &amp; Retention Issues (Pat Hawthorne and Georg
                <td>1985</td>
                <td>NV</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Holly</td>
                <td>Hibner</td>
                <td>Adult Services Coordinator, Plymouth District Library, Plymouth, MI</td>
@@ -1445,7 +1446,7 @@ http://librarylostfound.com/author/hhibner/</td>
                <td>1998</td>
                <td>MI</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Jennifer</td>
                <td>Rushton Jamison</td>
                <td>School Library Media Specialist, Atlantic City High School, Atlantic City, NJ</td>
@@ -1497,7 +1498,7 @@ Susquehanna University, Bachelor of Arts, Minor Political Science, 1990</td>
                <td>2010</td>
                <td>NJ</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Sara Kelly</td>
                <td>Johns</td>
                <td>School Library Program Consultant &amp; Presenter, Sara Kelly Johns Consulting, Saranac Lake, NY</td>
@@ -1550,7 +1551,7 @@ If I am given the honor of serving on Council, I am committed to work within ALA
                <td>1984</td>
                <td>NY</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Robin</td>
                <td>Kear</td>
                <td>Liaison Librarian, University of Pittsburgh, Pittsburgh, PA</td>
@@ -1604,7 +1605,7 @@ I believe in ALA and the flexibility of the organization to shape this landscape
                <td>2000</td>
                <td>PA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Anita</td>
                <td>Silvany Kinney</td>
                <td>Program Analyst, US Access Board, Washington, DC</td>
@@ -1633,7 +1634,7 @@ Presentations: http://www.anitalife.com/presentations</td>
                <td>2014</td>
                <td>DC</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Karen E.</td>
                <td>Kiorpes</td>
                <td>Head, Alice Hastings Murphy Preservation Department, University at Albany, SUNY, Albany, NY</td>
@@ -1690,7 +1691,7 @@ Integrating Preservation Activities. With Emily Holmes. ARL SPEC Kit #269. Washi
                <td>1997</td>
                <td>NY</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Kimberly</td>
                <td>Bray Knight</td>
                <td>Branch Manager, DC Public Library, Washington, District of Columbia</td>
@@ -1732,7 +1733,7 @@ If elected, I want to be a part of ALA's continuing dedication to its work--advo
                <td>2000</td>
                <td>DC</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Binh P.</td>
                <td>Le</td>
                <td>Associate Librarian, The Pennsylvania State University, Abington, PA</td>
@@ -1764,7 +1765,7 @@ Binh P. Le: Asian Americans and American Academic Libraries: Pathways to Leaders
                <td>1989</td>
                <td>PA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Dennis</td>
                <td>LeLoup</td>
                <td>School Librarian, Avon Intermediate School East, Avon, IN</td>
@@ -1794,7 +1795,7 @@ Author: "Information Power in Region 3: Student Achievement is Always the Bottom
                <td>1989</td>
                <td>IN</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Lisa L.</td>
                <td>Longmire</td>
                <td>Collection Management Specialist, Kitsap Regional Library, Bremerton, Washington</td>
@@ -1829,7 +1830,7 @@ I want to help continue to transform libraries so that they may have a lasting i
                <td>2013</td>
                <td>WA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Turner</td>
                <td>Masland</td>
                <td>Access Services Assistant Manager, Portland State University Library, Portland, Oregon</td>
@@ -1866,7 +1867,7 @@ Moving Mountains: Migrating a Consortium to a New Integrated Library System,” 
                <td>2009</td>
                <td>OR</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Sarah</td>
                <td>McHone-Chase</td>
                <td>Head of User Services, Northern Illinois University, Dekalb, IL</td>
@@ -1888,7 +1889,7 @@ Moving Mountains: Migrating a Consortium to a New Integrated Library System,” 
                <td>2005</td>
                <td>IL</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Chulin</td>
                <td>Meng</td>
                <td>Director of Library Technology, Lehigh University, Bethlehem, PA</td>
@@ -1912,7 +1913,7 @@ An Executable Big Data Storage Strategy, presented at EDUCAUSE Annual Conference
                <td>2006</td>
                <td>PA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Julia</td>
                <td>Mielish</td>
                <td>Dean of Library Services, Wake Technical Community College, Raleigh, NC</td>
@@ -1936,7 +1937,7 @@ Librarian, County of Los Angeles Public Library July 2001-August 2004</td>
                <td>2006</td>
                <td>NC</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Kathryn</td>
                <td>Miller</td>
                <td>Director of Libraries, Florida Polytechnic University, Lakeland, Florida</td>
@@ -1985,7 +1986,7 @@ http://www.reuters.com/article/2014/08/25/us-usa-florida-library-idUSKBN0GP0W620
                <td>1998</td>
                <td>FL</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Rebecca K.</td>
                <td>Miller</td>
                <td>Head, Library Learning Services, The Pennsylvania State University, University Park, PA</td>
@@ -2015,7 +2016,7 @@ Miller, R. K.: "Social Media, Authentic Learning, and Embedded Librarianship: A 
                <td>2006</td>
                <td>PA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Kari R.</td>
                <td>Mitchell</td>
                <td>Adult Librarian, District of Columbia Public Library, Washington, DC</td>
@@ -2063,7 +2064,7 @@ Author. "Gang of One: Memoirs of a Red Guard by Fan Shen. HighPlains Reader. Far
                <td>2013</td>
                <td>DC</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Marilee Lynne</td>
                <td>Moon</td>
                <td>Department Manager, Salt Lake City Public Library, Salt Lake City, Utah</td>
@@ -2087,7 +2088,7 @@ Grant Elementary School, Librarian, 2004-2006</td>
                <td>2011</td>
                <td>UT</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Louis</td>
                <td>Muñoz Jr.</td>
                <td>Reference, ILL, and Outreach Librarian, Morristown and Morris Township Public Library, Morristown, NJ</td>
@@ -2110,7 +2111,7 @@ Reference Librarian, Brooklyn Public Library, August 2006-March 2014</td>
                <td>2007</td>
                <td>IL</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Dr. Muzhgan Israfil</td>
                <td>Nazarova</td>
                <td>Catalog Librarian for Slavic and Eurasian Languages, Duke University Library, Durham, NC</td>
@@ -2198,7 +2199,7 @@ As ALA Councilor-at-Large I would like to use my longstanding experience in inte
                <td>1997</td>
                <td>NC</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Denise D.</td>
                <td>Novak</td>
                <td>Acquisitions Librarian, Carnegie Mellon University, Pittsburgh, Pennsylvania</td>
@@ -2229,7 +2230,7 @@ Nardini, Bob, Denise Novak. 2001. “Issues in Vendor Library Relations: The Sal
                <td>1978</td>
                <td>PA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Juliana</td>
                <td>Nykolaiszyn</td>
                <td>Associate Professor/Librarian, Oklahoma State University, Stillwater, OK</td>
@@ -2258,7 +2259,7 @@ Nykolaiszyn, J. (2012). Preserving born-digital oral histories. In C. Smallwood 
                <td>2007</td>
                <td>OK</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Floyd Clark</td>
                <td>Pentlin</td>
                <td>Adjunct, Library Science and Information Services, University of Central Missouri, Warrensburg, Missouri</td>
@@ -2323,7 +2324,7 @@ B.A.-German, 1968; Bethany College</td>
                <td>1981</td>
                <td>MO</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Scott</td>
                <td>Piepenburg</td>
                <td>Head of Cataloging, Valdosta State University, Valdosta, GA</td>
@@ -2352,7 +2353,7 @@ Author, Digitizing audiovisual and nonprint materials, September 2015</td>
                <td>1988</td>
                <td>GA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Lauren</td>
                <td>Pressley</td>
                <td>Director/Associate Dean, UW Tacoma/University of Washington Libraries, Tacoma/Seattle, WA</td>
@@ -2381,7 +2382,7 @@ twitter: @laurenpressley</td>
                <td>2004</td>
                <td>WA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Colby Mariva</td>
                <td>Riggs</td>
                <td>Project Coordinator - Systems Librarian, University of California, Irvine, Irvine, California</td>
@@ -2439,7 +2440,7 @@ PMI, Orange County Chapter, Member Marketing Team, 2006-2009</td>
                <td>1986</td>
                <td>CA</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Rachel G.</td>
                <td>Rubin</td>
                <td>Library Director, Bexley Public Library, Bexley, Ohio</td>
@@ -2487,7 +2488,7 @@ Chadwick, C., DiPilato, R., le Conge, M., &amp; Rubin, R. (2010). Student scenar
                <td>2003</td>
                <td>OH</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>David C.</td>
                <td>Saia</td>
                <td>Librarian, Heim Middle School - Williamsville Central Schools, Williamsville, NY</td>
@@ -2509,7 +2510,7 @@ Chadwick, C., DiPilato, R., le Conge, M., &amp; Rubin, R. (2010). Student scenar
                <td>2013</td>
                <td>NY</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Edward L.</td>
                <td>Sanchez</td>
                <td>Head, Library Information Technology, Marquette University, Milwaukee, WI</td>
@@ -2549,7 +2550,7 @@ Edward Sanchez: "Building a Virtual Library," co-authors: Monica Metz-Wiseman, T
                <td>2003</td>
                <td>WI</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>John C.</td>
                <td>Sandstrom</td>
                <td>Associate Professor/Head of Acquisitions, New Mexico State University, Las Cruces, New Mexico</td>
@@ -2581,7 +2582,7 @@ Book reviewer for Library Journal</td>
                <td>2002</td>
                <td>NM</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Lindsay C.</td>
                <td>Sarin</td>
                <td>MLS Program Manager</td>
@@ -2635,7 +2636,7 @@ Facebook: https://www.facebook.com/lcsarin</td>
                <td>2008</td>
                <td>MD</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Jamillah</td>
                <td>Scott-Branch</td>
                <td>Head Reference Librarian, North Carolina Central University, Durham, North Carolina</td>
@@ -2674,7 +2675,7 @@ Scott-Branch, Jamillah. (2015) "Black Studies in Video" Reference Reviews, Vol. 
                <td>2006</td>
                <td>NC</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Jennifer Suzanne</td>
                <td>Seebauer</td>
                <td>School Librarian, Teays Valley School District, Ashville, Ohio</td>
@@ -2705,7 +2706,7 @@ Ben’s Guide to the U.S. Government lesson plan contributor, 2015 (lesson found
                <td>2007</td>
                <td>OH</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Shawn L.</td>
                <td>Shaffer</td>
                <td>Executive Director, Winter Park Public Library, Winter Park, Florida</td>
@@ -2737,7 +2738,7 @@ I also want to build community within our organization, I have witnessed many ti
                <td>2003</td>
                <td>FL</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Jules</td>
                <td>Shore</td>
                <td>Systems Librarian, Bethesda, MD</td>
@@ -2785,7 +2786,7 @@ Please vote for me.</td>
                <td>2000</td>
                <td>MD</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Steven Escar</td>
                <td>Smith</td>
                <td>Dean, University of Tennessee Libraries, Knoxville, TN</td>
@@ -2813,7 +2814,7 @@ Librarian, Texas A&amp;M University LIbraries, 1990-2001</td>
                <td>1990</td>
                <td>TN</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Catherine</td>
                <td>Soehner</td>
                <td>Associate Dean for Research and User Services, University of Utah, Salt Lake City, UT</td>
@@ -2841,7 +2842,7 @@ Soehner, C., Steeves, C., Ward, J.: "E-Science and Data Support Services: A Surv
                <td>1995</td>
                <td>UT</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Rosalind</td>
                <td>Tedford</td>
                <td>Director for Research and Instruction Services, Wake Forest University, Winston Salem,   North Carolina</td>
@@ -2869,7 +2870,7 @@ Author: "Never Waste a Good Crisis, Leadership is not Supervision and More Lesso
                <td>1998</td>
                <td>NC</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>James K.</td>
                <td>Teliha</td>
                <td>Director of the Library &amp; Learning Commons, Utica College, Utica, New York</td>
@@ -2893,7 +2894,7 @@ University of Rhode Island, Access Services Librarian, 2000-2007.</td>
                <td>1997</td>
                <td>NY</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Annie</td>
                <td>Wu</td>
                <td>Head of Metadata and Digitization Services, University of Houston Libraries, Houston, Texas</td>
@@ -2941,7 +2942,7 @@ Co-Author: “Mass Management of E-book Catalog Records: Approaches, Challenges,
                <td>1998-2000; 2008-Present</td>
                <td>TX</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Sherry Jean</td>
                <td>Wyman</td>
                <td>School Library/Technology Integration Coordinator, State of Maine Department of Education, Augusta, Maine</td>
@@ -2975,7 +2976,7 @@ Without great libraries/librarians, we are at risk. How can we empower and inspi
                <td>1997</td>
                <td>ME</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Jingfeng</td>
                <td>Xia</td>
                <td>Associate Professor, Department of Library &amp; Information Science, Indiana University, Indianapolis, Indiana</td>
@@ -3003,7 +3004,7 @@ Jingfeng Xia (2012), “Positioning open access journals in a LIS journal rankin
                <td>2004</td>
                <td>IN</td>
          </tr>
-         <tr>
+         <tr class="initial-show">
                <td>Jessica</td>
                <td>Zaker</td>
                <td>Central Branch Manager, Sacramento Public Library, Sacramento, CA</td>
@@ -3112,7 +3113,7 @@ Youth Services Librarian, Las Vegas Clark County Library District, 2005-2008</td
 
     var boolean_filter = function(button, facet) {
       // Handles the binary filters (spectrum y/n and emerging leader y/n).
-      if (!(facet == 'spectrum') &amp;&amp; !(facet=='el')) {
+      if (!(facet == 'spectrum') && !(facet=='el')) {
         // Just in case, since eval() is a nuclear weapon.
         return
       }
