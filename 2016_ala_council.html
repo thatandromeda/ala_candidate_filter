@@ -3234,20 +3234,7 @@ Youth Services Librarian, Las Vegas Clark County Library District, 2005-2008</td
       caucus_cells.each(function() {
         var row = $j(this).parent('tr'); // The row containing this cell.
 
-        var cell_caucuses = listify_expanded($j(this));
-
-        // REFORMA is a special case because it's not an acronym in
-        // parentheses, so it won't be caught by our regexp. We need to make
-        // sure it's still in the list of caucuses for this cell if applicable.
-        if ( $j(this).html().indexOf('REFORMA') >= 0 ) {
-          if ( cell_caucuses ) {
-            cell_caucuses.push('REFORMA');            
-          } else {
-            // If REFORMA is the only caucus in the cell, cell_caucuses will
-            // be null and pushing to it will throw an error.
-            cell_caucuses = ['REFORMA'];
-          }
-        }
+        var cell_caucuses = listify($j(this));
 
         var bool = intersect_lists(cell_caucuses, caucuses_active);
 
