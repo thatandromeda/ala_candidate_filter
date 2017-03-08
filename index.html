@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ALA Council Candidate 2016 sorter</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+    <style type="text/css">
+      table {
+        margin-top: 20px;
+      }
+
+      tr {
+        display: none;
+      }
+
+      .initial-show {
+        display: inherit;
+      }
+
+      tr.success {
+        display: inherit;
+      }
+
+      /* It's important that the hide classes go AFTER the show classes so that hiding
+         behavior overrides showing behavior (by virtue of CSS cascading) - in order to
+         AND facets together, we need to say that *all* of them must have show behavior
+         to be displayed, which means that *any* with hide behavior should trump all
+         show behavior.
+      */
+      .division-show, .rt-show, .caucus-show, .type-show, .state-show, .spectrum-show, .el-show {
+        display: inherit;
+      }
+
+      .division-hide, .rt-hide, .caucus-hide, .type-hide, .state-hide, .spectrum-hide, .el-hide {
+        display: none;
+      }
+
+      tr.header-row {
+        /* Header row. */
+        display: inherit;
+        background-color: #d0e9c6;
+      }
+
+      .wide {
+        min-width: 200px;
+      }
+
+      .extra-wide {
+        min-width: 400px;
+      }
+
+      .extra-extra-wide {
+        min-width: 600px;
+      }
+
+      .btn.btn-default {
+        padding: 3px 6px;
+        margin-bottom: 3px;
+      }
+
+      .btn-default.active {
+        background-color: #d0e9c6;
+      }
+
+      header.jumbotron {
+        background-color: rgb(92, 184, 92);
+        color: white;
+      }
+
+    </style>
+  </head>
+  <body>
+
+    <header class="jumbotron">
+      <div class="container">
+        <h1>Welcome to the ALA Council Candidate Sorter</h1>
+      </div>
+    </header>
+
+    <div class="container">
+      <ul>
+        <li><a href="2017_ala_council.html">2017</a></li>
+        <li><a href="2016_ala_council.html">2016</a></li>
+        <li><a href="2015_ala_council.html">2015</a></li>
+      </ul>
+    </div>
+  </body>
