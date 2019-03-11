@@ -22,6 +22,7 @@
   * Update the page title and the jumbotron to reflect the current year.
   * Check to see if multiple division affiliations are split on commas or
     something else.
+  * Don't worry about the list of states - it autopopulates.
 -->
 <html lang="en">
   <head>
@@ -29,7 +30,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>ALA Council Candidate 2018 sorter</title>
+    <title>ALA Council Candidate 2019 sorter</title>
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
@@ -103,7 +104,7 @@
 
   <header class="jumbotron">
     <div class="container">
-      <h1>ALA Council Candidate Sorter 2018</h1>
+      <h1>ALA Council Candidate Sorter 2019</h1>
     </div>
   </header>
 
@@ -127,14 +128,13 @@
               <button type="button" class="btn btn-default" id="ALCTS">ALCTS</button>
               <button type="button" class="btn btn-default" id="ALSC">ALSC</button>
               <button type="button" class="btn btn-default" id="ACRL">ACRL</button>
-              <button type="button" class="btn btn-default" id="ASCLA">ASCLA</button>
+              <button type="button" class="btn btn-default" id="ASGCLA">ASGCLA</button>
               <button type="button" class="btn btn-default" id="LITA">LITA</button>
               <button type="button" class="btn btn-default" id="LLAMA">LLAMA</button>
               <button type="button" class="btn btn-default" id="PLA">PLA</button>
               <button type="button" class="btn btn-default" id="RUSA">RUSA</button>
               <button type="button" class="btn btn-default" id="UNITED">United</button>
               <button type="button" class="btn btn-default" id="YALSA">YALSA</button>
-              <br/><i>(The candidate data does not yet reflect the ASCLA/FAFLRT merger.)</i>
             </div>
           </div>
         </div>
@@ -147,23 +147,23 @@
             <div class="panel-body" id="filter-rts">
               <button type="button" class="btn btn-default" id="EMIERT">EMIERT</button>
               <button type="button" class="btn btn-default" id="ERT">ERT</button>
-              <button type="button" class="btn btn-default" id="FAFLRT">FAFLRT</button>
+              <button type="button" class="btn btn-default" id="FMRT">FMRT</button>
               <button type="button" class="btn btn-default" id="GAMERT">GAMERT</button>
               <button type="button" class="btn btn-default" id="GLBTRT">GLBTRT</button>
               <button type="button" class="btn btn-default" id="GODORT">GODORT</button>
               <button type="button" class="btn btn-default" id="IFRT">IFRT</button>
               <button type="button" class="btn btn-default" id="IRRT">IRRT</button>
               <button type="button" class="btn btn-default" id="LEARNRT">LearnRT</button>
+              <button type="button" class="btn btn-default" id="LHRT">LHRT</button>
               <button type="button" class="btn btn-default" id="LIRT">LIRT</button>
               <button type="button" class="btn btn-default" id="LRRT">LRRT</button>
               <button type="button" class="btn btn-default" id="LSSIRT">LSSIRT</button>
               <button type="button" class="btn btn-default" id="MAGIRT">MAGIRT</button>
               <button type="button" class="btn btn-default" id="NMRT">NMRT</button>
               <button type="button" class="btn btn-default" id="RMRT">RMRT</button>
-              <button type="button" class="btn btn-default" id="SRRT">SRRT</button>
               <button type="button" class="btn btn-default" id="SORT">SORT</button>
+              <button type="button" class="btn btn-default" id="SRRT">SRRT</button>
               <button type="button" class="btn btn-default" id="SUSTAINRT">SustainRT</button>
-              <button type="button" class="btn btn-default" id="VRT">VRT</button>
             </div>
           </div>
         </div>
@@ -248,7 +248,7 @@
   </p>
 
   <br />
-  <table>
+  <table class="table table-hover table-bordered">
         <!--Created with XmlGrid Free Online XML Editor (http://xmlgrid.net)-->
         <tr class="header-row">
               <td>First Name</td>
