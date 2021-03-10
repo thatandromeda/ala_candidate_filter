@@ -1,0 +1,2753 @@
+<!DOCTYPE html>
+<!-- To make this next year:
+  * Download candidate spreadsheet
+  * Search-replace all commas with an unlikely character, such as ,
+  * Export to CSV
+  * Use a CSV-to-HTML converter to make the table (I used
+    http://xmlgrid.net/csvToHtml.html)
+  * Copy-paste this into a following-year file
+  * Replace the table in the following-year file with your new table
+  * Search/replace to be sure that "AILA", "APALA", "BCALA", and "CALA" are
+    used in the ethnic caucus columns, not just the fully-spelled-out versions
+  * Search/replace the } to turn it back into ,
+  * Search/replace '&'to '&amp;' (and then fix the && in the Javascript, and this
+    line)
+  * Search/replace <tr> with <tr class="initial-show"> (except in this line,
+    and in the first row of the table, which should have
+    <tr class="header-row">).
+  * Add class="table table-striped" to the table as a whole.
+  * Format the header row, per last year.
+  * Test to see if it works. Who knows what the data format is. In particular,
+    the nth-child selectors are all totally fragile around column reordering.
+    (Protip: the nth-child selector is 1-indexed because what is this, Mars?)
+  * Update the voting button if needed.
+  * Update the page title and the jumbotron to reflect the current year.
+  * Check to see if multiple division affiliations are split on commas or
+    something else.
+  * Don't worry about the list of states - it autopopulates.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ALA Council Candidate 2021 sorter</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+    <style type="text/css">
+      table {
+        margin-top: 20px;
+      }
+
+      tr {
+        display: none;
+      }
+
+      .initial-show {
+        display: inherit;
+      }
+
+      tr.success {
+        display: inherit;
+      }
+
+      /* It's important that the hide classes go AFTER the show classes so that hiding
+         behavior overrides showing behavior (by virtue of CSS cascading) - in order to
+         AND facets together, we need to say that *all* of them must have show behavior
+         to be displayed, which means that *any* with hide behavior should trump all
+         show behavior.
+      */
+      .division-show, .rt-show, .caucus-show, .type-show, .state-show, .spectrum-show, .el-show {
+        display: inherit;
+      }
+
+      .division-hide, .rt-hide, .caucus-hide, .type-hide, .state-hide, .spectrum-hide, .el-hide {
+        display: none;
+      }
+
+      tr.header-row {
+        /* Header row. */
+        display: inherit;
+        background-color: #d0e9c6;
+        font-weight: bold;
+      }
+
+      tr.header-row td {
+        background-color: #d0e9c6;
+        font-weight: bold;
+      }
+
+      .wide {
+        min-width: 200px;
+      }
+
+      .extra-wide {
+        min-width: 400px;
+      }
+
+      .extra-extra-wide {
+        min-width: 600px;
+      }
+
+      .btn.btn-default {
+        padding: 3px 6px;
+        margin-bottom: 3px;
+      }
+
+      .btn-default.active {
+        background-color: #d0e9c6;
+      }
+
+      header.jumbotron {
+        background-color: rgb(92, 184, 92);
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+
+  <header class="jumbotron">
+    <div class="container">
+      <h1>ALA Council Candidate Sorter 2021</h1>
+    </div>
+  </header>
+
+  <div class="container">
+
+  <!-- begin filter area -->
+  <div class="row filter-buttons">
+
+    <!-- begin filter button panels -->
+    <div class="col-sm-10">
+
+      <!-- begin first row of filters -->
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Divisions</h3>
+            </div>
+            <div class="panel-body" id="filter-divisions">
+              <button type="button" class="btn btn-default" id="AASL">AASL</button>
+              <button type="button" class="btn btn-default" id="ALSC">ALSC</button>
+              <button type="button" class="btn btn-default" id="ACRL">ACRL</button>
+              <button type="button" class="btn btn-default" id="Core">Core</button>
+              <button type="button" class="btn btn-default" id="PLA">PLA</button>
+              <button type="button" class="btn btn-default" id="RUSA">RUSA</button>
+              <button type="button" class="btn btn-default" id="UNITED">United</button>
+              <button type="button" class="btn btn-default" id="YALSA">YALSA</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Round Tables</h3>
+            </div>
+            <div class="panel-body" id="filter-rts">
+              <button type="button" class="btn btn-default" id="EMIERT">EMIERT</button>
+              <button type="button" class="btn btn-default" id="ERT">ERT</button>
+              <button type="button" class="btn btn-default" id="FMRT">FMRT</button>
+              <button type="button" class="btn btn-default" id="GAMERT">GAMERT</button>
+              <button type="button" class="btn btn-default" id="GLBTRT">GLBTRT</button>
+              <button type="button" class="btn btn-default" id="GODORT">GODORT</button>
+              <button type="button" class="btn btn-default" id="IFRT">IFRT</button>
+              <button type="button" class="btn btn-default" id="IRRT">IRRT</button>
+              <button type="button" class="btn btn-default" id="LEARNRT">LearnRT</button>
+              <button type="button" class="btn btn-default" id="LHRT">LHRT</button>
+              <button type="button" class="btn btn-default" id="LIRT">LIRT</button>
+              <button type="button" class="btn btn-default" id="LRRT">LRRT</button>
+              <button type="button" class="btn btn-default" id="LSSIRT">LSSIRT</button>
+              <button type="button" class="btn btn-default" id="MAGIRT">MAGIRT</button>
+              <button type="button" class="btn btn-default" id="NMRT">NMRT</button>
+              <button type="button" class="btn btn-default" id="RMRT">RMRT</button>
+              <button type="button" class="btn btn-default" id="SORT">SORT</button>
+              <button type="button" class="btn btn-default" id="SRRT">SRRT</button>
+              <button type="button" class="btn btn-default" id="SUSTAINRT">SustainRT</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Ethnic Caucuses</h3>
+            </div>
+            <div class="panel-body" id="filter-caucuses">
+              <button type="button" class="btn btn-default" id="AILA">AILA</button>
+              <button type="button" class="btn btn-default" id="APALA">APALA</button>
+              <button type="button" class="btn btn-default" id="BCALA">BCALA</button>
+              <button type="button" class="btn btn-default" id="CALA">CALA</button>
+              <button type="button" class="btn btn-default" id="REFORMA">REFORMA</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- end first row of filters -->
+
+      <!-- begin second row of filters -->
+      <div class="row">
+
+        <div class="col-sm-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Library Types</h3>
+            </div>
+            <div class="panel-body" id="filter-types">
+              <button type="button" class="btn btn-default" id="Academic">Academic</button>
+              <button type="button" class="btn btn-default" id="Public">Public</button>
+              <button type="button" class="btn btn-default" id="School">School</button>
+              <button type="button" class="btn btn-default" id="Other">Other</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-8">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">States</h3>
+            </div>
+            <div class="panel-body" id="filter-states">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- end second row of filters -->
+
+    </div>
+    <!-- end filter button panels -->
+
+    <!-- begin filter logic explainer -->
+    <div class="col-sm-2 border-left full-height">
+      <em>Divisions, RTs, caucuses, library types, and states use OR within facets and AND between facets.</em>
+    </div>
+    <!-- end filter logic explainer -->
+
+  </div>
+  <!-- end filter area -->
+
+  <hr />
+
+  <!-- begin spectrum/EL button area -->
+  <div class="row filter-buttons">
+    <div class="col-sm-10">
+      <button type="button" class="btn btn-default" id="spectrum">Spectrum scholars only</button>
+      <button type="button" class="btn btn-default" id="EL">Emerging Leaders only</button>
+    </div>
+    <div class="col-sm-2">
+      <em>These are Booleans.</em>
+    </div>
+  </div>
+  <!-- end spectrum/EL button area -->
+
+  <hr />
+
+  <p class="text-center">
+    <a href="https://www.directvote.net/ala/" class="btn btn-success btn-lg">Vote here</a><br />
+    <em>(Check your email for login information. ALA members only, of course.)</em>
+  </p>
+
+  <br />
+  <table class="table table-striped">
+<!--Created with XmlGrid Free Online XML Editor (http://xmlgrid.net)-->
+    <tr class="header-row">
+      <td>First Name</td>
+      <td>Last Name</td>
+      <td>Current Position</td>
+      <td>Institution/Organization</td>
+      <td>City</td>
+      <td>State</td>
+      <td>Type of Library</td>
+      <td>Previous Positions</td>
+      <td>Degrees and Certifications</td>
+      <td>Division Affiliation(s)</td>
+      <td>To which Round Tables do you belong?</td>
+      <td>To which Ethnic Affiliates do you belong?</td>
+      <td>Were/are you a Spectrum Scholar?</td>
+      <td>Were/are you an Emerging Leader?</td>
+      <td>ALA and/or ALA-APA Activities</td>
+      <td>Offices held in state/regional library associations, &amp; other associations</td>
+      <td>Honors and Awards</td>
+      <td>Major Accomplishments</td>
+      <td>Publications</td>
+      <td>Links for Further Information</td>
+      <td>Statement of Professional Concern</td>
+      <td>Number of Years as an ALA Member</td>
+    </tr>
+<tr class="initial-show">
+  <td>Celia </td>
+  <td>Avila</td>
+  <td>Senior Librarian</td>
+  <td>Los Angeles Public Library</td>
+  <td>Los Angeles</td>
+  <td>CA</td>
+  <td>Public</td>
+  <td/>
+  <td/>
+  <td>ALSC, PLA</td>
+  <td/>
+  <td>Reforma</td>
+  <td>No</td>
+  <td>No</td>
+  <td>ALA Council, Councilor-at-Large 2017-2020</td>
+  <td>REFORMA, Public Relations Committee Chair 2019-2020; REFORMA National Conference VII Steering Committee, Publications Co-Chair 2019-2021; REFORMA Los Angeles Chapter, Public Information Officer 2019-2020; REFORMA Los Angeles Chapter, Scholarship Committee Chair 2019-2021; REFORMA Los Angeles Chapter, Past President 2016-2017</td>
+  <td/>
+  <td/>
+  <td/>
+  <td/>
+  <td>My first term on council was very rewarding and I'd like to continue to help move the association forward. As counselors we have an opportunity to help guide decisions and make positive contributions to the profession. I'd like the opportunity to again represent the members as we work to create a more diverse and inclusive association.</td>
+  <td/>
+</tr>
+<tr class="initial-show">
+  <td>Cindy</td>
+  <td>Bhatti</td>
+  <td>Director of Public Services</td>
+  <td>Vigo County Public Library</td>
+  <td>Terre Haute</td>
+  <td>IN</td>
+  <td>Public</td>
+  <td>Supervisor Librarian, Indianapolis Public Library 10/2018-4/2020
+Public Services Librarian, Indianapolis Public Library 1/2018-10/2018
+Emergent Literacy Coordinator, Los Angeles County Public Library, 7/2013-7/2015</td>
+  <td>MLS 2005 Indiana University
+MA 2004 History, Ball State University
+BS 2001 Arts and Humanities, Indiana University</td>
+  <td>PLA
+LLAMA
+YALSA</td>
+  <td/>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>COLA  2010-2012  As Cindy Singer
+PLA Legislation and Advocacy Committee 2010-2012 As Cindy Singer</td>
+  <td/>
+  <td/>
+  <td>Lead team to pass legislation in California</td>
+  <td/>
+  <td/>
+  <td>I am committed to leading libraries through the current crisis and into the brave new world we now face.  Besides the immediate concerns of future funding and relevance, I am committed to discovering new ways to serve those who use us.  I am also very committed to the education and opportunities of future librarians, and discovering ways to attract a more diverse library workers.  I aspire to serve library staff and users to the best of my ability, to advocate, and support both groups.</td>
+  <td>3</td>
+</tr>
+<tr class="initial-show">
+  <td>Kimberley</td>
+  <td>Bugg</td>
+  <td>Associate Library Director</td>
+  <td>AUC Woodruff Library</td>
+  <td>Atlanta</td>
+  <td>GA</td>
+  <td>Academic</td>
+  <td>Chief, Library of Congress, 2017-2020</td>
+  <td>Simmons University, PhD, 2017; Clayton State University, MA, 2010; North Carolina Central University, MSLS, 2005, Georgia State University, BA, 2003</td>
+  <td>ACRL
+LLAMA
+</td>
+  <td>Library Research (LRRT)</td>
+  <td>BCALA</td>
+  <td>No</td>
+  <td>Yes</td>
+  <td>
+American Library Association, 2004- present
+ALA Committee on Research &amp;amp; Statistics, 2020 - 2022
+ALA HR Development &amp;amp; Recruitment Advisory Committee, 2020 - 2022
+ALA Emerging Leader, 2010
+ALA Carnegie Whitney Grant recipient, 2010
+American College &amp;amp; Research Libraries, 2006 – present
+ACRL Visual Literacy Advisory Working Group, 2010
+ACRL Delaware Valley Chapter, Legislative Liaison, 2012- 2014
+ACRL Section Membership Committee, Chair 2011-2012
+ACRL Popular Culture Discussion Group Convener, 2011- 2013
+ACRL Arts Committee, Film and Broadcast Librarian Discussion Group Convener, 2008-2012
+ACRL Dance Librarian Discussion Group, 2008 – 2010
+ACRL Member of the Week, 2010
+BCALA, 2017 - present
+Library Administration and Management Association, 2005- present
+LLAMA HRS Leadership Skills Development Committee, 2015 – 2016
+International Federation of Libraries Association, Reference and Instruction Services Section, chair, 2019 - present
+Toastmasters International, Care2Speak, Secretary 2007-2008, 2006- 2015
+Library Association, City University of New York, Institute Chair, 2017
+Library Journal Reviewer, 2011 – 2015
+</td>
+  <td/>
+  <td/>
+  <td/>
+  <td>Bugg, K. (2015). Best practices for talent acquisition in 21st-century academic libraries. Library Leadership &amp;amp; Management
+
+Bugg, K. (2016). The perceptions of people of color in academic libraries concerning the relationship between retention and advancement as middle managers. Journal of Library Administration, 56(4), 428-443.
+
+Bugg, K. (2016). Creating the leadership you seek: Five leadership development activities that will cultivate leadership from within your library. College &amp;amp; Research Libraries News, 77(10), 492-495.
+</td>
+  <td/>
+  <td>Libraries and Librarians are important. Nothing has underscored this fact more than the current international pandemic that has not only forced libraries and librarians to provide an immediate and radical response to remote engagement but has also magnified issues related to the digital divide and digital literacy. Now more than ever, it is crucial that I advocate for myself and other library professionals as we seek to provide the best possible outcomes for our patrons and partners</td>
+  <td>15</td>
+</tr>
+<tr class="initial-show">
+  <td>Elizabeth</td>
+  <td>Call</td>
+  <td>University Archivist</td>
+  <td>Rochester Institute of Technology</td>
+  <td>Rochester</td>
+  <td>NY</td>
+  <td>Academic</td>
+  <td>Special Collections Outreach Librarian, Rare Books, Special Collections &amp;amp; Preservation, University of Rochester, October 2017-July 2019
+
+Public Services Librarian, Burke Library, Columbia University, June 2014-October 2017
+
+Brooklyn Historical Society, Head of Reference &amp;amp; User Services, September 2013-May 2014</td>
+  <td>New York University, MA, Public History &amp;amp; Archives, 2010; Long Island University, MLIS, Rare Books &amp;amp; Special Collections, 2005; SUNY New Paltz, BA, History, 2000</td>
+  <td>ACRL</td>
+  <td/>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>2020 &amp;amp; 2021 Conference Planning Committee, RBMS/ACRL, co-chair, 2018-present; Executive Committee, RBMS/ACRL, member-at-large, 2017-present; Coalition on Archives, Libraries and Museums (CALM), Membership Interest Group, ALA, convener, 2018-2019; Society of American Archivists-RBMS/ACRL Joint Task Force to Revise the Statement on Access to Research Materials in Archives and Special Collections Libraries, co-chair, 2017-2020; Executive Committee, RBMS/ACRL, secretary, 2015-2017; 2018 Conference Planning Committee, RBMS/ACRL, member, 2017-2018; Committee on Archives, Libraries and Museums (CALM), Combined committee of the ALA/Society of American Archivists/American Association of Museums, co-chair, 2014-2018; Membership &amp;amp; Professional Development Committee, RBMS/ACRL, member, 2015-2017; Seminars Committee, ACRL/RBMS, member, 2015-2017; 2017 Conference Planning Committee, RBMS/ACRL, member, 2015-2017; Core Competencies in Special Collections Librarianship Task Force, RBMS/ACRL, member, 2014-2016; Publications Committee, RBMS/ACRL, member, 2010 – 2015; Exhibition Awards Committee, RBMS/ACRL, member, 2011 – 2015; Metrics and Assessment Task Force, RBMS/ACRL, member, 2012 – 2013.</td>
+  <td/>
+  <td>Louis and George Demakis Fellow, 2010
+
+Member of Phi Alpha Theta (History Honors Society), 2000
+
+</td>
+  <td>My major accomplishments center around laying strong foundations that can be later built on and further improved upon as well as creating expansive outreach projects.  While at the Brooklyn Historical Society, I built a public services program, creating policies and workflows that ensured sustainable management and growth and resulted in expanded hours to the public, shortened response times of remote reference questions, and established a teaching program.  While at the Burke Library, I created an outreach project, #LoveInAction, that engaged both students and alumni/ae. Which included student-curated exhibits and programming that brought current students together with alumni/ae to critically engage with Union’s rich activist history.  At RBSCP, I laid the foundations for building a new collection area that documents social justice and human rights in Rochester. Combining public history with archival theory, I worked, and continue to work, collaboratively with the head of that department to develop and implement a thoughtful and intentional approach to how RBSCP &amp;amp; RIT partners with communities to begin to collect in these important and sensitive subject areas.</td>
+  <td>Call, E. and Mims, M. “From the Ground Up: Building Positive Community Partnerships and Strong Social Justice Collections.” Archives and Special Collections as Sites of Contestation. Library Juice, 2020.
+
+Call, E., K. Hoffman, and K. Totleben. “Teaching Towards the Whole.” Teaching Undergraduates with Archives. Maize Books, 2019.
+
+Call, E. and Baker, M. “Philanthropy, Faith, and Influence: Documenting Protestant Missionary Activism during the Armenian Genocide.” The Reading Room: A Journal of Special Collections. Vol. 1, Issue 1: 7-18. September 2015.
+</td>
+  <td/>
+  <td>I have been a member of ALA since becoming a librarian fifteen years ago. I immediately became involved with RBMS/ACRL and have been an active member and leader of several committees.  I feel like it is time for me to get more involved with the bigger picture of the work that ALA is doing. While I was a co-chair of an ALA level committee, I never felt connected with what was going on at the ALA level.  Now that I have finished up my term on RBMS' Executive Committee I would like to become more involved with ALA.  ALA is at a pivotal moment, with my experience and connections with the RBMS community, I feel I would be able to provide connection between the two communities to perhaps build strong collaborative bonds, or at the very least, more awareness of how RBMS fits into the larger picture.</td>
+  <td>15</td>
+</tr>
+<tr class="initial-show">
+  <td>Keturah</td>
+  <td>Cappadonia</td>
+  <td>Outreach ConsultantOutreach Consultant</td>
+  <td>Southern Tier Library System</td>
+  <td>Painted Post</td>
+  <td>NY</td>
+  <td>Public</td>
+  <td>Head of Children's Services, David A. Howe Public Library, 2015-2017
+
+Director, Coudersport Public Library, 2009-2015
+</td>
+  <td>University of Pittsburgh, Master of Library &amp;amp; Information Science, 2008
+University of Rochester, Master of Arts, History, 2006
+Mansfield University, Bachelor of Arts, History, 2003
+</td>
+  <td>PLA</td>
+  <td>Sustainability (SustainRT)
+Ethnic &amp;amp; Multicultural Information Exchange RT (EMIERT)
+</td>
+  <td>BCALA
+REFORMA
+</td>
+  <td>No</td>
+  <td>No</td>
+  <td>ALA Council, Councilor-At Large, 2019-2021
+ALA Council Orientation Committee, 2020- present
+ALA Committee on Library Advocacy, 2017-2019
+ALA Annual Conference Poster Session Committee, 2017-2019
+EMIERT Electronic Communications Committee Member, 2020-present
+EMIERT Corretta Scott King Publications Standing Committee Member, 2020-2022
+EMIERT Great Electronic Resources for English Language Learners Task Force -School/Public Libraries (2017-2019)
+PLA Public Libraries Advisory Committee Member, 2020-2022
+PLA DEMCO New Leaders Travel Grant Committee Member, 2017-2019
+Association of Bookmobile and Outreach Services Newsletter Committee, 2017-2019
+Association of Bookmobile and Outreach Services Member, 2017 - present
+Association for Rural and Small Libraries, Inc. Member, 2017 - present
+</td>
+  <td>New York Library Association Public Library Section member, 2017-present
+New York Library Association Rural Libraries Roundtable member, 2017-present
+New York Library Association Correctional Outreach Resource Team Roundtable member. 2017 -present
+South Central Regional Library Council Board of Trustees, 2017- present
+</td>
+  <td/>
+  <td>Passionate and enthusiastic professional with over a decade of experience working in community libraries. Particularly interested in library advocacy, small and rural libraries, library partnerships, serving marginalized populations, and leading with empathy. Currently coordinate outreach services and partnerships for 48 community libraries across five counties of western New York State. Work with state correctional facilities and county jails to provide library services, coordinate services to marginalized populations, develop and maintain partnerships with community agencies, work on library advocacy at a state and local level. Completed the Pennsylvania Library Association Leadership Academy. Received and coordinated the administration of an American Dream Literacy Award, EBSCO Excellence in Rural Library Service Award, and ALSC Bookapalooza Award. </td>
+  <td/>
+  <td/>
+  <td>As a public librarian with over a decade in service to small and rural libraries, I am particularly interested in representing the interests of the numerous small libraries across the country which provide a variety of essential services to their local communities. Additionally, my work focuses on helping provide library services to marginalized populations including the geographically isolated, the unemployed or underemployed, people who have developmental or learning disabilities, people living in institutionalized settings, members of ethnic or minority groups in need of specialized services, people who are educationally disadvantaged, older adults, and people who are blind or have physical or mental disabilities. I hope to use a position in the American Library Association Council to assist in providing equitable library access and services to traditionally underserved groups and to the libraries and library staff who make this possible</td>
+  <td>11</td>
+</tr>
+<tr class="initial-show">
+  <td>John</td>
+  <td>Clexton</td>
+  <td>Library Director</td>
+  <td>Gladwin County District Library</td>
+  <td>Gladwin</td>
+  <td>MI</td>
+  <td>Public</td>
+  <td>Regional Library Director, United States Virgin Islands Library System, 2017-2019
+
+Branch Coordinator, Grosse Pointe Public library -Grosse Pointe, MI, 2000-2017
+
+Childrens Librarian, Detroit Public Library-Detroit, MI, 1998-2000
+</td>
+  <td>Wayne State University, MSLIS, 1998; Wayne State University, BA Geography,1996; Macomb Community College, AAS Fire Science, 1991</td>
+  <td>PLA</td>
+  <td/>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td/>
+  <td>• Valley Library Consortium, President, 2020-present
+• USVI Library Hurricane Recovery/Action Committee, Chair 2017-2019
+• Michigan Education Association Union
+o 2002, 2008, 2012, 2017 Bargaining Committee
+o 2007-09, 2016- 2018 -President of MEA Local 1
+o 2012-2016 Vice President of MEA Local 1
+• GPPL Strategic Planning Committee, Chair 2018
+• Gladwin Economic Development Council Board Member
+• Beaverton Activity Center  Board Member
+• Gladwin County Community Arena Board, Board Member
+</td>
+  <td/>
+  <td>I served as a major contributor to the construction of two new libraries from initial planning to opening day. I was involved from the design phase, through the Blueprint phase all the way to constructional design and equipment ordering.
+
+I also worked on the restructuring and recovery of three libraries in St. Croix, USVI after two Category 5 Hurricanes.  This included reconfiguring IT systems, building infrastructure, material handling, and reviving Bookmobile service.
+
+In every place I have been employed, I have been instrumental in improving services from technical outreach to severely lacking internal personnel policy and procedures.  This includes the creation of non-existent policies, creating an extensive new and implemented list of procedures, updated employee policy manuals, safety guidelines, and our new COVID 19 Procedures.</td>
+  <td/>
+  <td/>
+  <td>It has evolved quickly - the need for libraries to quickly evolve from their traditional focuses to something more in keeping with the rapidly expanding online access brought by home internet and other online access. We have succeeded in many ways with new programming, STEM activities, virtual programming, 3D printers, etc. However, we find ourselves thrust once again into a new dawn. Covid 19, as well as the call for diversity and equality, have propelled us to confront several immediate concerns. Librarians are inventive problem solvers. Working together we can create ideas and solutions to continue to offer traditional serves, embrace emerging services, and inspire new and yet unknown services and benefits. In short, my professional mission is to focus on the community I serve, identifying and meeting their current needs, while also inspiring them to view and utilize the library in new and important ways.</td>
+  <td>20</td>
+</tr>
+<tr class="initial-show">
+  <td>Rachael</td>
+  <td>Clukey</td>
+  <td>Reference Librarian</td>
+  <td>Delaware County District Library</td>
+  <td>Delaware</td>
+  <td>OH</td>
+  <td>Public</td>
+  <td>Youth Services Specialist, Delaware County District Library, March 2014 - June 2015
+
+Children’s Librarian, Dayton Metro Library, July 2013 - March 2014
+
+Children’s Librarian, Akron-Summit County Public Library, April 2009 - June 2013</td>
+  <td>Master of Library and Information Science, Kent State University, 2008
+Bachelor of Business Administration, Shawnee State University, 2004</td>
+  <td/>
+  <td>Rainbow Round Table (RRT) and Exhibits Round Table (ERT)</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>ALA ERT Librarian board member 2018 -current, ALA Scholarship Committee 2018-current
+
+NMRT various committees from 2015-present, including Web Committee member, Annual Social Committee Chair 2016-2017, Orientation Committee Co-Chair 2017-2018, Resume Review Committee member, Assistant Chair And Chair 2018-2020</td>
+  <td>Collaborative Summer Library Program (CSLP) Budget &amp;amp; Finance Committee member
+Ohio Library Council Central Chapter Action Council, 2015-2017</td>
+  <td/>
+  <td/>
+  <td/>
+  <td>https://www.linkedin.com/in/rachael-clukey-9a33b559/</td>
+  <td>If elected, I plan to represent librarians and library workers of all types of libraries, all ethnicities, and all gender identities. Everyone has a voice and I would like to advocate for them to be heard. I also would like to contribute to the future changes of ALA.</td>
+  <td>6</td>
+</tr>
+<tr class="initial-show">
+  <td>Fannie M</td>
+  <td>Cox</td>
+  <td>Outreach and Reference Librarian, Associate Professor</td>
+  <td>University of Louisville Libraries</td>
+  <td>Louisville</td>
+  <td>KY</td>
+  <td>Academic</td>
+  <td>Electronic Resources, Coordinator University of Louisville Libraries 1/1999-8/2006
+
+Interim Head of Reference, University Libraries – Ekstrom Library 7/2011-10/2011
+
+Government Documents, Library Assistant Indiana University/Purdue University at Indianapolis 1991-1998</td>
+  <td>Indiana University, MLS, 1998; Kentucky State University, MPA 1991; Indiana University, BA Sociology, 1982</td>
+  <td>ACRL</td>
+  <td>Library Research (LRRT)</td>
+  <td>BCALA</td>
+  <td>No</td>
+  <td>No</td>
+  <td>Association of College &amp;amp; Research Libraries (ACRL) Education and Behavioral Sciences Section (EBSS) Research Committee, 7/2020-6/2022; ACRL University Libraries Section (ULS) Conference Program Planning, 7/2020–6/2022; ACRL Budget &amp;amp; Finance Committee, 7/2016–6/2020; ALA Digital Content Working Group representing the BCALA (BCALA), 7/2019- ; ACRL Academic Library Trends and Statistics Survey Editorial Board, 7/2012-6/2014; Conference Co-Chair of the 8th National Conference of African American Librarians (NCALL), BCALA, 7/2011-6/2014; Association for Library Collections &amp;amp; Technical Services (ALCTS) 2013 Chair, Coutts Award for Innovation in Electronic Resources. 7/2012-6/2013; ACRL 2011 Contributed Papers Committee, 7/2010-7/2011; Reference and User Services Association (RUSA), The MARS: Emerging Technologies in Reference Section, 7/2011-6/2013; ALA Diversity Council representing the BCALA, 7/2009-6/2001; Member, ALCTS Collection Development and Electronic Resources Committee (CDER), 7/2008-6/2009; ALA Advocacy Training Subcommittee, 7/2008-6/2010; 2009 ALCTS President's Program Planning Committee, 7/2008-6/2009; ALCTS, Leadership Development (LD) Committee, 7/2005-6/2007; ALCTS,LD Committee for Emerging Leaders Selection Committee, Reviewer, 7/2007-6/2009; 2006 ALCTS Orientation Committee, ALA Annual Conference, New Orleans, LA; Coordinator, 2007 ALCTS Volunteer Forum, ALA Mid-Winter Conference, Seattle, WA  2007; ALCTS CMDS Collection Development and Electronic Resources, 7/2006-6/2010.</td>
+  <td>Immediate Past President, Kentucky Library Association (KLA), 2008-2009; President, Kentucky Library Association (KLA)Host President and conference partner to the Association of Research Libraries (ARL) National Diversity in Libraries Conference (NDLC), Kentucky School Media Association (KSMA), and the Southeastern Library Association (SELA), 2007-2008; State Board for Library Certification, 2007-2008; Served on State Library Advisory Council, 2007-2008; Served on State Board for Library Certification, 2007-2008; President-Elect KLA, 2006-2007; Kentucky Virtual Library Advisory Committee (VLAC), 2005-2008; Chair, KLA Recruitment, Mentoring, and Diversity Committee (RMD), 2005-2006; Chair, KLA Poster Sessions for Annual Fall Conference, 2004-2006; Chair, KLA Special Library Section, 2003-2004; KLA Spring Conference Planning Committee, 2003-2004; Chair-Elect for KLA Special Library Section &amp;amp; Chair of Conference Planning Committee for Special Section, 2002-2003; KLA Membership Committee, Chair of the Subcommittee on Intellectual Freedom &amp;amp; State liaison to the ALA’s Office of Intellectual Freedom, 2001-2003.</td>
+  <td>Alpha Kappa Alpha (AKA) Sorority, Inc. Eta Omega Chapter, Certificate of Appreciation for supporting Target I: Education Enrichment – the ASCEND Program. The purpose of the ASCEND program is to motivate, engage, and assist high school students in reaching their maximum potential, [Financial Literacy] 2017;  Association of Research Libraries (ARL) Leadership and Career Development Program (LCDP), 2013–2014; Association of College and Research Libraries (ACRL) Fellowship, 2000; National Science Foundation Fellowship, 1989.
+
+</td>
+  <td>From book idea to co-edited monograph, my first book was published, June 2020 https://www.routledge.com/Library-Collaborations-and-Community-Partnerships-Enhancing-Health-and/Hines-Martin-Cox-Cunningham/p/book/9781138343290.
+In 2011, my proposal for an exhibition co-sponsored by the Constitution Center in Philadelphia, PA, the ALA Public Programs Office and funded by National Endowment for the Humanities (NEH) won "Lincoln: The Constitution and the Civil War."  It included a grant of $750. This exhibit allowed the library to partner with the College of Arts and Sciences 150th Symposium on the Civil War and the Filson Historical Society, Louisville, Kentucky.
+In 2006, I became the first African-American Librarian at the University of Louisville Libraries to earn tenure.</td>
+  <td>Hines-Martin, V., Cox, F. M., Cunningham, H. R. (Eds). (2020). Library Collaborations and Community Partnerships: Enhancing Health and Quality of Life. (1st edition). Routledge. https://www.routledge.com/Library-Collaborations-and-Community-Partnerships-Enhancing-Health-and/Hines-Martin-Cox-Cunningham/p/book/9781138343290.
+
+Cox, F. M. (2020). Unrecognized Roles of Libraries in Collaborations to Improve Communities: History. In Hines-Martin, V., Cox, F. M., Cunningham, H. R., (Eds.). Library Collaborations and Community Partnerships: Enhancing Health and Quality of Life. (1st ed., pp.11-20). Routledge.
+
+Chisholm, J., Alford, J., Halliday, L., &amp;amp; Cox, F. M. (2019). Teacher agency in English language arts teaching: A scoping review of the literature. English Teaching: Practice &amp;amp; Critique, 18(2), 124-152. Doi:10.1108/ETPC-05-2019-0080</td>
+  <td/>
+  <td>Various situations have allowed me to acquire various skills and experiences that contribute to my wisdom and knowledge. Eight years on the Association of Research Libraries (ACRL) Budget and Finance Committee (2012-2020) allowed me to gain valuable insight into one of ALA's largest Divisions.
+In my workplace, I have served as a Commissioner on the University President's Commission for Diversity and Racial Equality (CODRE). This Commission advises and/or make recommendations on racial justice and social issues that impact students, staff, and faculty at the University.
+Additionally, I found my niche in community engagement, which allows me to work with underrepresented K-12 and adult learners in collaboration with the academy, to promote information, financial, and computer literacy regionally, nationally, and internationally.
+Always in learning mode, eager to learn and create new knowledge, I look forward to elevating my participation and supporting the many facets of ALA by serving on Council.</td>
+  <td>20</td>
+</tr>
+<tr class="initial-show">
+  <td>Angela</td>
+  <td>Craig</td>
+  <td>Executive Director</td>
+  <td>Charleston County Public Library
+
+</td>
+  <td>Charleston</td>
+  <td>SC</td>
+  <td>Public</td>
+  <td>Center City Leader, Charlotte Mecklenburg Library, 2017-2019
+
+ImaginOn Branch Manager, 2016-2017
+
+Teen Services Coordinator 2012-2016</td>
+  <td>Masters in Library &amp;amp; Information Science, University of South Carolina, December 2009
+Bachelor of Science in Recreation Administration, Texas State University, August 2002</td>
+  <td>UNITED
+PLA
+LLAMA</td>
+  <td>Ethnic &amp;amp; Multicultural Information Exchange RT (EMIERT)
+Social Responsibilities Round Table (SRRT)</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>Alex Award Committee Chair 2016
+Alex Award Committee 2014- 2015
+Committee Member: Amazing Audiobooks 2010-2012
+Committee Member: Diversity Taskforce 2009-2010
+Committee Member: Outreach to Young Adults with Special Needs 2009-2010</td>
+  <td/>
+  <td>National Safe Place Network "Together We Can" Award, 2016
+Angela Craig is the recipient of the "Together We Can Award" from the National Safe Place organization and the Relatives, the Library's community partner. Safe Place is a national youth outreach and prevention program for young people in need of immediate help and safety. As a community-based program, Safe Place designates businesses and organizations as Safe Place locations, making help readily available to youth in communities across the country.</td>
+  <td>Co-Author of Serving At-Risk Teens: Proven Strategies and Programs for Bridging the Gap, 2013, resulting in invitation to be the Keynote Speaker for the 2015, 9th International Symposium, South Korea on Library Services for Children and Young Adults in 2015. </td>
+  <td>Serving At-Risk Teens: Proven Strategies and Programs for Bridging the Gap, Neil-Shuman Book Publications, 2013
+
+Craig, Angela &amp;amp; Hyatt, Jason. "Adapt for Outreach: Taking Technology on the Road." Computers in Libraries, Vol. 29, No. 9, October 2009
+
+Craig, Angela. "High Impact Partnership Serving Youth Offenders," Young Adult Library Services, Volume 9, Number 1, 2010
+</td>
+  <td>https://www.linkedin.com/in/angela-craig-09048b56/</td>
+  <td>Equality is a basic human right and so is the right to equitable access to information. Libraries are uniquely positioned to promote equity within their communities, and within our industry. I am committed to doing the work to promote equity, diversity, and inclusion both for our patrons and especially for library staff. I look forward to the opportunity to amplify diverse voices and perspectives within our profession.</td>
+  <td>10</td>
+</tr>
+<tr class="initial-show">
+  <td>Sara</td>
+  <td>Dallas</td>
+  <td>Director</td>
+  <td>Southern Adirondack Library System
+
+</td>
+  <td>Saratoga Springs</td>
+  <td>NY</td>
+  <td>Consortium</td>
+  <td>Interim Director, Upper Hudson Library System, January 2000 - June 2000
+
+Deputy Director and Outreach Consultant, Upper Hudson Library System, 1994-2003
+
+Outreach Consultant, Mohawk Valley Library Association, 1985-1994</td>
+  <td>The State University of New York at Albany, School of Library and Information Science, New York: Masters of Library Science, 1977
+The State University of New York at Albany, B.A. Rhetoric and Communication, 1976</td>
+  <td>UNITED
+ASGCLA
+PLA
+LLAMA
+</td>
+  <td>Sustainability (SustainRT)
+Social Responsibilities Round Table (SRRT)
+Gay, Lesbian, Bisexual, and Transgender Round Table (GLBTRT)
+Intellectual Freedom Round Table (IFRT)
+</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>ALA Councilor at Large 2015-present
+Committee on Professional Ethics 2015-2019 – Chair
+Committee on Legislation 2019-2021
+Awards Committee 2017-2019
+Rural, Native, Tribal Libraries of All Kinds Committee 2018-2020
+Task Force on Sustainability 2017-2020
+Sullivan Award for Public Library Administrators Supporting Services to Children 2019-2020 – Jury Chair
+H.W. Wilson Staff Development Award Jury 2018-2019
+Committee on Research and Statistics 2002-2004
+PLA Board of Directors 2008-2011
+Charlie Robinson Award Jury 2017-2018 – Chair
+PLA Leadership Development Committee 2016-2018
+PLA Social Media Working Group 2015-2016
+PLA Continuing Education Advisory Group 2015-2017
+National Conference Program Subcommittee Chair-2014 and member 2012, 2016
+Freedom to Read Foundation Executive Board 2020-2021, Trustee 2019-2021
+LeRoy C. Merritt Humanitarian Fund 2019-2021 Trustee
+</td>
+  <td>Albany Public Library Board of Trustees 2019-2023 (public elected office)
+Capital District Library Council Board of Trustees 2003-2014; 2019-2023
+New York Library Association:
+Council – Public Library Section Liaison 2013-2014; Councilor at Large 2002-2003
+Awards Committee 2006-2008 – Chair
+Conference Program Committee 2019-2020, 2007-2008
+Continuing Education Committee 2015-2018, 2007-2009
+Public Library Section President
+Intellectual Freedom Roundtable 2015-2019 – Board member
+Intellectual Freedom Committee 2018-2020 – Chair
+Public Library System Director Organization Executive Board 2005-2006 – Chair
+
+Capital District Library Council Board of Trustees 2003-2014; 2019-2023
+</td>
+  <td>ALA Bessie Boehm Moore Award for Outstanding Library Program for Older Adults 1992
+Joseph F. Shubert Library Excellence Award: Fresh Food Collective Farm-2-Library Distribution program 2019
+Joseph F. Shubert Library Excellence Award: Statewide Performer Database 2005
+Joseph F. Shubert Library Excellence Award: Mohawk Valley Library Association – Older Wiser Learners 1996
+</td>
+  <td>Resolution for the Adoption of Sustainability as a Core Value of Librarianship 2019
+Resolution to Honor African Americans Who Fought Library Segregation 2018 – passed unanimously by ALA Council
+ALA Committee on Professional Ethics amended Copyright: An Interpretation of the Code of Ethics (amended January 29, 2019), Conflicts of Interest Q&amp;amp;A (amended January 28, 2019), Enforcement of the Code of Ethics Q&amp;amp;A (amended Jan 28, 2019), Ethics and Social Media Q&amp;amp;A (January 28, 2019), Speech in the Workplace Q&amp;amp;A (amended April 30, 2019)
+Established two libraries with materials and programs in the NYS Division for Youth Tryon Residential Center 1992-1994
+Presented and planned programs for ALA National Conferences, Joint Council of Librarians of Color 2018 – PLA National Conferences, New York Library Association Annual Conferences; regional and local programs
+Improved access to libraries and library services to all people in the community – people with physical disabilities, services for people who are blind, older adults, people with developmental or learning disabilities, living in institutionalized settings, educationally disadvantaged, unemployed or underemployed and live in rural areas
+</td>
+  <td>“Red-State Strategies – SALS Libraries and Community Support” Public Libraries: (S/O):28-30, 2019
+
+“Information at Their Fingertips” (Dallas), Public Libraries: 2013 (S/O):30–34
+
+“Library Standards for Services to Children: Outreach Standards” New York Library Association 1994.
+</td>
+  <td/>
+  <td>ALA is a sophisticated member-driven organization at a crossroads. As ALA scrutinizes its structure, values, financial situation, it is essential to work together to reach consensus and provide leadership to continue to grow and serve members of our profession.
+Libraries are trusted institutions and must work for the public good by ensuring equitable, diverse, and inclusive libraries that are robust, brave spaces for difficult conversations.  ALA should routinely review policies, procedures, and structures for bias.
+As a successful executive director of a public library consortium with 34 autonomous libraries, I honed my leadership skills, developed over decades of work reflecting my commitment to justice, equity, diversity, and inclusion. I work with library staff, trustees, and communities to reach consensus on many issues, including advocacy, community service, intellectual freedom, and sustainability.
+</td>
+  <td>26</td>
+</tr>
+<tr class="initial-show">
+  <td>Catherine</td>
+  <td>Damiani</td>
+  <td>Library Director</td>
+  <td>Tiverton Public Library</td>
+  <td>Tiverton</td>
+  <td>RI</td>
+  <td>Public</td>
+  <td>Head of Reference and Digital Services, East Providence Public Library (RI), 2015-2018
+
+Library Assistant, Cranston Public Library, 2014-2015
+
+Library Assistant, Barrington Public Library, 2006-2019
+</td>
+  <td>MLIS, University of Rhode Island, 2015
+MPA, University of Rhode Island, 2020
+</td>
+  <td>PLA</td>
+  <td/>
+  <td/>
+  <td>No</td>
+  <td>Yes</td>
+  <td>ALA Councilor-at-Large, 2018-2021
+Member, RUSA Leadership Council, 2017-2018
+Chair, RUSA ETS Hot Topics in Electronic Reference Discussion Group, 2015-2017
+Member, RUSA President's Program Committee, 2016
+Emerging Leader sponsored by RUSA, 2016
+</td>
+  <td>Steering Vice President/President/Past President, Ocean State Libraries Consortium (RI), 2020-2022
+Member, Information Literacy Action Round Table, Rhode Island Library Association (RILA), 2016-2018
+Board Member, Media Smart Libraries Advisory Board, URI GSLIS, 2015-2017
+</td>
+  <td>Recent Alumni of the Year, URI GSLIS, 2017
+Beta Phi Mu Inductee, 2016
+</td>
+  <td>Successfully lobbied for an increase to my library's budget after years of level funding (2019).
+Created a publishing resource website for RUSA with my Emerging Leader group members (2015).
+</td>
+  <td>Chapter Co-Author in: Leading Professional Development: Growing Librarians for the Digital Age by Mary H. Moen and Sarah A. Buchanan (eds.), 2020.
+
+Author: "Using Twitter Effectively for Publicity." MLS - Marketing Library Services (information Today, Inc.), Volume 30, Number 3, 2016.
+</td>
+  <td/>
+  <td>ALA stands at the precipice of a major decision regarding reorganization. I have been inspired during my time as a Councilor-at-Large over the past 3 years to help make this organization one that best represents and supports its members. As a public library director, I am committed to supporting the mission of public libraries, advocating for library staff at all levels, and continuing to be an ally to those most vulnerable. Intellectual freedom and privacy have always been principles I am passionate about. I will always continue to work to advocate for these essential library concepts.
+
+</td>
+  <td>8</td>
+</tr>
+<tr class="initial-show">
+  <td>Roberto C. </td>
+  <td>Delgadillo</td>
+  <td>Student Services Librarian</td>
+  <td>Student Services Department, Peter J. Shields Library, University of California, Davis</td>
+  <td>Davis</td>
+  <td>CA</td>
+  <td>Academic</td>
+  <td>Reference/Acquisitions Librarian, Inglewood Public Library, 1996-2005
+
+Catalog Librarian, Beverly Hills Public Library, 2000-2005
+
+Reference Librarian, Saddleback College, 2002-2003
+</td>
+  <td>University of California, Los Angeles, PHD Latin American History, 2004; University of California, Los Angeles, MA Latin American Studies, 1999; University of California, Los Angeles, MLIS, 1995; University of California, Santa Cruz, BA History, 1991. </td>
+  <td>ACRL</td>
+  <td>Ethnic &amp;amp; Multicultural Information Exchange RT (EMIERT)
+Games &amp;amp; Gaming (GAMERT)
+</td>
+  <td>AILA
+APALA
+REFORMA
+</td>
+  <td>No</td>
+  <td>No</td>
+  <td>ALA Council, 2011 – Present, Councilor-at-Large; American Library Association (ALA) 2014 – Present, Campaign for America's Libraries Subcommittee, Member; 2010 – 2012, REFORMA Executive Board, Member-at-Large; 2009-2010, EMIERT Roundtable Councilor; 2007-2011, EMIERT, Building Coalitions for Ethnicity Committee, Chair; 2009 – 2011, ALA Diversity Research Grants Advisory Group, Member.  </td>
+  <td>2015-Present, Seminar on the Acquisition of Latin American Library Materials (SALALM), Parliamentarian. </td>
+  <td>2012 Carnegie Corporation of New York/New York Times/ALA I Love My Librarian Award; 1991 Magna Cum Laude, Adlai E. Stevenson College, University of California, Santa Cruz. </td>
+  <td>Being a librarian and knowing I am of service.</td>
+  <td>"Collecting to the Core--La Frontera: The U.S.-Mexican Borderlands," Against the Grain Volume 27, Issue 6, Article 28, 2015.
+
+"Graphic Novels and Comics in Libraries and Archives: Essays on Readers, Research, History and Cataloging (Review)," Reference and User Services Quarterly Volume 50, Number 3, 2011.
+
+"Future Historians: Their Quest for Information," College &amp;amp; Research Libraries Volume 60, Number 3, 1999.
+</td>
+  <td/>
+  <td>Roberto C. Delgadillo is honored by the opportunity to serve the members of the American Library Association (ALA). As an organization the ALA strives to support its membership by providing information and opportunities for impacting the latest practices, standards and issues. The ALA must continue to strategically incorporate new methods of communicating both within and among other organizations. Roberto looks forward to working with the ALA membership to ensure ALA remains a vibrant, innovative and fiscally sound organization</td>
+  <td>21</td>
+</tr>
+<tr class="initial-show">
+  <td>Kim</td>
+  <td>DeNero-Ackroyd</td>
+  <td>Deputy Director</td>
+  <td>Cleveland Heights-University Heights Public Library</td>
+  <td>Cleveland Heights</td>
+  <td>OH</td>
+  <td>Public</td>
+  <td>Branch Manager Willoughby-Eastlake Public Library Feb 2008-Nov 2011
+
+Adult Services Librarian Shaker Heights Public Library Jan 2003-Feb 2008
+
+Library Account Manager Ingram Library Services April 2001-Nov 2001
+</td>
+  <td>University of Texas, MLIS, 1995
+The Ohio State University, BA English, 1991
+</td>
+  <td>PLA
+LLAMA
+</td>
+  <td/>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>A Council, Councilor at Large, 2019-2021
+Committee on the Status of Women in Librarianship, member, 2016-2017
+</td>
+  <td>Public Library Association, Membership Advisory Group, 2018-2020
+Public Library Association, PLA Conference Program Subcommittee, 2012 and 2014 conferences
+Public Library Association, Public Library Systems Committee, Chair 2007-2010; Committee member 2005-2007
+Ohio Library Council, Convention and Expo Chair, 2021
+Ohio Library Council, Convention and Expo Program Chair, 2020
+Ohio Library Council, Convention and Expo Assistant Program Chair, 2019
+Ohio Library Council, Safety and Security Conference, member 2019
+Ohio Library Council, Management and Supervision Conference, Chair 2018
+Ohio Library Council, Management and Administrative Division, member, 2017-2020
+</td>
+  <td/>
+  <td>Aside from my professional involvement that's listed elsewhere, I've also done 5 programs for the annual statewide conference and 3 for a regional professional organization. In addition, for five years, I've been the co-administrator for a Facebook group "Librarian Leadership", dedicated to supporting women in managerial and leadership roles in libraries. A colleague and I created the group after doing 3 consecutive programs at our annual statewide conference and getting SRO audiences.</td>
+  <td/>
+  <td>Linked In page:  https://www.linkedin.com/in/kim-denero-ackroyd-1644323/</td>
+  <td>I've now served as a Councilor at Large for a full year and I have a much clearer picture of what exactly happens at Council. During the first year, I have volunteered for some specific committees, but haven't been selected to serve. If re-elected, I would continue to take the initiative and submit my name for consideration for committee work, including the SCOE (Steering Committee on Organizational Effectiveness) project "Forward Together". For those members who don't know about it, "Forward Together" is examining the feasibility of the current ALA Council structure and proposing a smaller body for ALA governance. Another area that has concerned me is ALA's budget situation. In my job, I work closely with the Director and Fiscal Officer on our $11 million budget throughout the year. I'm also directly responsible for the $1.3 million dollar materials budget. I feel that this experience could be helpful.</td>
+  <td>17</td>
+</tr>
+<tr class="initial-show">
+  <td>Bob</td>
+  <td>Diaz</td>
+  <td>Associate Librarian and Archivist</td>
+  <td>The University of Arizona Libraries</td>
+  <td>Tucson</td>
+  <td>AZ</td>
+  <td>Academic</td>
+  <td>Undergraduate Services Librarian The University of Michigan Libraries 1987-1992
+
+Public Services Librarian The Nogales Santa Cruz County Public Library 1987
+</td>
+  <td>The University of Arizona, Masters of Library Science, 1986. The University of Arizona, BA Psychology, 1982.</td>
+  <td>ACRL</td>
+  <td>Social Responsibilities Round Table (SRRT)</td>
+  <td>REFORMA</td>
+  <td>No</td>
+  <td>No</td>
+  <td>2012-2015: ALA Council, member (elected position).
+2006-2009: ALA Council, member (elected position)
+2007-2009: ALA Diversity Council, member.
+2006-2009: ALA American Libraries Advisory Committee, member.
+2005-2007: ALA OLOS Advisory Committee, member.
+2005-2007: ALA Committee on Diversity, member.
+2002-2003: ALA Intellectual Freedom Committee, intern.
+2002: ACRL Nominating Committee, member.
+2001-2003: ALA Spectrum Scholarship Jury, member.
+2001-2002: ACRL Nominations Committee, member.
+1998-1999: ALA CCMCD, member and chair.
+1997-1999: LAMA Diversity Officers Discussion group, chair.
+1994-1998: LAMA Diversity Committee, member.
+1994: ACRL National Conference Contributed papers, reviewer.
+
+1993-1995: ALA GLBT Book Award committee, member (elected position).
+1990-1992: ACRL University Libraries Section Organization and Bylaws Committee, member.
+</td>
+  <td>2020: Hispanic Leadership Alliance Scholarship committee, guest reviewer.
+2012-2014: REFORMA Board of Directors, member.
+2008-2010: REFORMA Executive Board, member (elected chapter representative).
+2002-2004: REFORMA Organization Development Committee, chair.
+2001-2002: ARL Learning Outcomes Assessment Group, member.
+2001-2002: REFORMA Mentoring program, mentor.
+1999-2000: REFORMA 2nd National Conference Local Arrangements Committee, chair.
+1999-2000: REFORMA 2nd National Conference Planning Committee, member.
+1998-1999: ALA CCMCD, member and chair.
+1992-1994: REFORMA, national secretary (elected position).
+STATE:
+2020: American Institute of Architects Arizona Chapter Archives Committee, member.
+2017-2019: American Institute of Architects Arizona Chapter Archives Committee, guest participant and contributor.
+2015: AZLA Conference Planning Committee, member.
+2014-2016 AZLA Services to Diverse Populations Interest Group, chair.
+2014: AZLA Marketing Committee, member.
+2012-2015: AZLA Board, member. (Southern regional rep.—elected position)
+1993-1995: REFORMA Arizona chapter, president (elected position).
+1993-1994: ASLA Services to the Spanish Speaking Roundtable, chair (elected position).</td>
+  <td>2002 LJ Movers and Shakers Award</td>
+  <td/>
+  <td>Protest Music in the Latino Community, 2013, in “The Encyclopedia of Latino Culture: From Calaveras to Quinceaneras” edited by Charles M. Tatum. Greenwood Press, 2013.
+
+“The Intersection of Race and Queer Sexuality,” book chapter in Multiracial America: A Resource Guide on the History and Literature of Interracial Issues, edited by Karen Downing, Darlene Nichols and Kelly Webster. Scarecrow Press, 2005.
+
+“Helping Teams Work: Lessons Learned from the University of Arizona Library Reorganization”, article co-authored with Chestalene Pintozzi, Library Administration and Management, Vol. 13, No. 1, Winter 1999.
+
+</td>
+  <td>https://bobdiaz.net</td>
+  <td>I have been a member of ALA since I started Library School in 1985. Over the years, I have been active in a variety of committees and positions within the organization, including ALA Council. I have also been involved with REFORMA, the National Association for the Promotion of Library and Information Services to Latinos and the Spanish Speaking. I am seeking office as an ALA Councilor again because I love my chosen profession and its mission, to promote literacy and lifelong learning and freedom of expression. We are, as a nation, facing great challenges, and it is more important than ever that we preserve people’s right to free expression and access to free reading materials. I think it is also important that we continue to promote equity, diversity, and justice as library professionals. As an ALA Councilor I will do my best to support our values and promote lifelong learning.</td>
+  <td>30</td>
+</tr>
+<tr class="initial-show">
+  <td>Jina</td>
+  <td>DuVernay</td>
+  <td>Collection Development Archivist for African American Collections</td>
+  <td>Stuart A. Rose Manuscript, Archives, and Rare Book Library at Emory University</td>
+  <td>Atlanta</td>
+  <td>GA</td>
+  <td>Academic</td>
+  <td>Visiting Archivist for African American Collections, Rose Library, 01/19-05/20
+
+Special Collections Librarian, Alabama State University, 05/17-01/19
+
+Reference Librarian, Alabama State University, 05/16-05/17</td>
+  <td>• University of Alabama, Master of Library and Information Science, May 2016
+• Auburn University at Montgomery, Master of Liberal Arts, May 2013
+• Troy University at Montgomery, Bachelor of Arts (English), May 2001</td>
+  <td>ACRL</td>
+  <td>Ethnic &amp;amp; Multicultural Information Exchange RT (EMIERT)</td>
+  <td>BCALA</td>
+  <td>No</td>
+  <td>Yes</td>
+  <td>• American Library Association (ALA), Committee on Diversity Member, 2020- present
+• American Library Association (ALA), Equity, Diversity, and Inclusion (EDI) Assembly, 2020-present
+• Black Caucus American Library Association (BCALA), Executive Board Member 2018-2020
+• New Members Round Table (NMRT) Membership Promotion, Diversity, &amp;amp; Recruitment Committee, 2019-2020
+• The African American Studies Librarians Interest Group (AASLIG) of (ACRL) 2018-present</td>
+  <td>• Alabama Library Association, Author Awards Committee Member, 2017- 2018</td>
+  <td>2019 ALA Emerging Leader </td>
+  <td>Major accomplishments include:
+• Being selected as a 2019 ALA Emerging Leader
+• Being appointed to the ALA Committee on Diversity
+• Being elected as a BCALA Executive Board member, (2018-2020)
+• Being selected to serve on the National Leadership Grants for Libraries (NLG) field review panel for IMLS FY2019
+• Being selected to participate in the Hampton University Forum on Minority Recruitment and Retention in the LIS Field, (August 1-2, 2018)
+• Being selected to participate in the ACRL Diversity Alliance Institute, UNC Greensboro, (August 23-25, 2019)
+• Being selected to appear on the ALA 2021 Election Ballot for both ALA Councilor at Large and the Coretta Scott King Book Awards Jury.
+</td>
+  <td>• Co-author of a chapter in the upcoming edited volume, Implementing Excellence in Diversity, Equity, and Inclusion: A Handbook for Academic Libraries. Expected publication (Spring, 2021). Lee, Corliss and Brian Lym, Co-editors.
+• Contributor: Ostman, Sarah, and Stephanie Saba. Book Club Reboot: 71 Creative Twists. ALA Editions, 2019.
+Book Reviewer: Dallas, Hanbury, The Development of Southern Public Libraries and the African American Quest for Library Access, 1898-1963. New York: Lexington Books, 2020. The Journal of African American History
+</td>
+  <td>1. https://scholarblogs.emory.edu/marbl/2019/06/13/every-man-his-own/
+2. https://scholarblogs.emory.edu/marbl/2019/03/21/meeting-grace-delorme/
+</td>
+  <td>• I am concerned with the recruitment, fair hiring practices, promotion, and retention of BIPOC library professionals.
+• I am concerned with libraries listening to and reflecting the communities that they serve.
+• I am concerned with the recognition and appreciation of all library workers.
+• I am concerned with the examination of the status quo within librarianship and actively taking a new and fresh approach on everything from our collecting habits to the barriers that we enforce on would-be patrons.
+• I am concerned that the positive changes within libraries that were implemented in the immediate aftermath of the murder of George Floyd will not be maintained and sustained.
+</td>
+  <td>3</td>
+</tr>
+<tr class="initial-show">
+  <td>Kelsey</td>
+  <td>Flynn</td>
+  <td>Adult Services Specialist</td>
+  <td>White Oak Library District</td>
+  <td>Lockport</td>
+  <td>IL</td>
+  <td>Public</td>
+  <td>Adult Services Associate Joliet Public Library December 2017- present
+
+Circulation Clerk Orland Park Public Library March 2015- December 2017
+
+Student Librarian Montana State University February 2012- June 2013
+</td>
+  <td>San José State University, MILS, Expected Graduation: 2021
+Montana State University, BA, History and Political Science, 2014
+</td>
+  <td>ASGCLA
+LITA
+PLA
+</td>
+  <td>Sustainability (SustainRT)
+Social Responsibilities Round Table (SRRT)
+Games &amp;amp; Gaming (GAMERT)
+Graphic Novels &amp;amp; Comics Round Table (GNCRT)
+International Relations (IRRT)
+Gay, Lesbian, Bisexual, and Transgender Round Table (GLBTRT)
+</td>
+  <td/>
+  <td>No</td>
+  <td>Yes</td>
+  <td>ASCLA Accessibility Assembly: LITA Representative: July 2020 - June 2022</td>
+  <td/>
+  <td/>
+  <td>My greatest professional accomplishment has been motivating libraries across the country to install screen readers on to their libraries’ computers for the purpose of being more accessible to patrons with visual disabilities. After noticing the lack of information about different types of screen readers and accessibility aids, I created a presentation to help people learn more about these technologies. I gave my first poster presentation at the Illinois Library Association conference in 2018. Then I spoke at the Nevada Library Association conference on the same subject. I have also spoken at the Library Information Technology Association (LITA) Forum and was asked to do a webinar for them as well. One of the most rewarding speaking opportunities was for a local organization called the Area Training for Librarians &amp;amp; Staff Multi-library In-Service (ATLAS), it consisted of 29 different libraries and had over 400 people in attendance. Almost all libraries in ATLAS now have some kind of screen reader software available at their libraries. I also had the opportunity to speak at the 2019 ALA annual conference.</td>
+  <td/>
+  <td/>
+  <td>There is a dramatic shift happening in our association, with many proposed changes from SCOE coming to a head, as well as many divisions that have been around for decades consolidating or dissolving. As an organization, we have had to be adaptable in the past and that will only become more important moving forward. I am proud to be a member of ALA and I think that with innovation and membership engagement we can transform into an even greater organization.
+
+The structure of ALA is at a crossroads and with current events impacting our lives and libraries, we need to evolve. I am excited for the work that the Forward Together Working Groups are engaged in and I hope that those recommendations will impact ALA to become more transparent, equitable, diverse, and inclusionary. If elected to council, I will facilitate the necessary changes for a sustainable future for ALA.
+</td>
+  <td>4</td>
+</tr>
+<tr class="initial-show">
+  <td>Linda Marie</td>
+  <td>Golian-Lui</td>
+  <td>Associate Dean Library Services, Director of EAST and Librarian Professor, 2012 to date</td>
+  <td>Kennesaw State University</td>
+  <td>Kennesaw</td>
+  <td>GA</td>
+  <td>Academic</td>
+  <td>UNIVERSITY LIBRARIAN, University of Hawaii at Hilo, Hilo, Hawaii, July 2002 to July 2012.
+
+LIBRARIAN, Florida Gulf Coast University, Fort Myers, Florida, June 1997 to July 2002.
+
+SERIALS DEPARTMENT HEAD, Florida Atlantic University, Boca Raton, Florida, January 1993 to May 1997.</td>
+  <td>GRADUATE CERTIFICATE IN LEADERSHIP AND ETHICS, Kennesaw State University, Kennesaw, Georgia. Expected date of graduation 2016.
+DOCTORATE IN EDUCATION.  Florida Atlantic University, Boca Raton, Florida. Areas of Specialization: Adult Education, Community Education, Curriculum Development, Educational Leadership, and Higher Education Management.  Dissertation involved a nationwide survey of library administrators working in libraries with an institutional membership in the Association of Research Libraries. Dissertation Title: Thinking Style Differences among Academic Librarians.  Degree awarded August 1998.
+EDUCATIONAL SPECIALIST.  Florida Atlantic University, Boca Raton, Florida. Areas of Specialization: Adult Education, Community Education, Geriatric Education, Life-Long Learning, and Educational Management &amp;amp; Leadership.  Field Project: Facilitating Effective Literary Discussion Groups for Older Adults.  Degree awarded April 1995.
+MASTER OF SCIENCE IN LIBRARY SCIENCE, Florida State University, Tallahassee, Florida. Areas of specialization: Academic Librarianship and Technical Services.  Degree awarded April 1988.
+BACHELOR OF ARTS.  University of Miami, Coral Gables, Florida.  Majors:  Sociology and Criminal Justice.  Minors:  American History, Communications, and Religion.  Degree awarded May 1986, Cum Laude.
+OTHER EDUCATIONAL ACTIVITIES
+KSU LIBRARY SANDBOX, Kennesaw State University, Center for University Learning, one-year leadership and organizational change management training with a focus on creative problem solving,  strategic planning, and preparation for a transformation library services to support the development of an elite Carnegie Classification R2 institution, August 2019 to date.
+LEAN SIX SIGMA – YELLOW BELT CERTIFICATE, Kennesaw State University, College of Continuing and Professional Education, Kennesaw Georgia. Certificate awarded August 2016.
+LEAN SIX SIGMA – GREEN BELT CERTIFICATE, Kennesaw State University, College of Continuing and Professional Education, Kennesaw Georgia. Certificate awarded August 2016.
+KENNESAW STATE UNIVERSITY, MAMAGEMENT DEVELOPMENT PROGRAM FOR STURGIS LIBRARY, Kennesaw State University, Kennesaw, Georgia.  A year long program created by KSU to develop middle management skills for the Sturgis Library Leadership Team. Certificate awarded April 2014.
+EXECUTIVE LEADERSHIP FOR WOMEN CERTIFICATE PROGRAM, Kennesaw State University, Center for University Learning, Kennesaw, Georgia. Certificate awarded July 2013.
+AMERICAN LIBRARY ASSOCIATION / ASSOCIATION OF COLLEGE AND RESEARCH LIBRARIES, NEW LIBRARY DIRECTOR MENTORING PROGRAM, Chicago, Illinois.  A year long program created to support first-time or newly hired library directors.  Program includes a weeklong training opportunity, a formal mentoring program, and life-long participation in a closed electronic discussion forum.  Program participation is reviewed and limited.  2003-2004.
+ASSOCIATION FOR RESEARCH LIBRARIES, University of Hawaii at Manoa, Manoa, Hawaii.  Library Management Skills Institute I:  The Manager.  A Three-Day Institute.   October 2002.
+ AMERICAN LIBRARY ASSOCIATION / ASSOCIATION OF COLLEGE AND RESEARCH LIBRARIES, LEADERSHIP INSTITUTE FOR ACADEMIC LIBRARIES, Harvard University, Boston, Massachusetts. August 19-24, 2001.
+ LEADERSHIP SWFLN, South West Florida Library Network, Fort Myers, Florida A one-year library leadership development program with monthly meetings, assigned readings, and formal mentoring.  Program participation is reviewed and limited.  1999-2000.
+</td>
+  <td>ACRL
+ALCTS
+UNITED
+LITA
+RUSA
+LLAMA
+</td>
+  <td>Library Instruction Round Table (LIRT)
+Library Research (LRRT)
+Staff Organizations (SORT)
+New Members Round Table (NMRT)
+Social Responsibilities Round Table (SRRT)
+Learning RT (LearnRT, formerly CLENERT)
+Intellectual Freedom Round Table (IFRT)
+Government Documents (GODORT)
+</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>Ambassador Program (2012 to date)
+Scholarship Bash Committee, Volunteer Workers Coordinator (1999-2006)
+Association for College and Research Libraries Division
+Chair, Dr. E. J. Josey Spectrum Scholar Mentor Committee (2013-2015)
+Member, ACRL Marketing Academic Research Libraries Committee (2010-2012)
+Chair, University Libraries Section Conference Planning Committee (2006)
+Association for Library Collections &amp;amp; Technical Services Division
+Member, Serials Section, Committee to Study Serials Standards (1995 to 1997)
+Committee on Accreditation
+Member, University of Alabama, School of Library and Information Science, Review Committee (2016-2017)
+Member, Dominican University, Graduate School of Library and Information Science, Review Committee (2004-2005)
+Committee on the Status of Women in Librarianship (COSWL)
+Program Committee Co-Chair (2003)
+Council
+LRRT Councilor, 2017- 2019
+Hawaii State Chapter Councilor, 2002-2011
+Library Administration and Management Association (LAMA)
+Member, Mentoring Program (2014 to date)
+Member, Systems and Services Section, Publications Committee (2001-2003)
+Library Instruction Round Table (LIRT)
+President Elect, 2006
+Chair, Conference Program Committee 2005
+Chair Elect, Conference Program Committee 2004
+Library Research Round Table (LRRT)
+ALA Councilor, 2017-2019
+LRRT Executive Board, 2017-2019
+New Members Round Table (NMRT)
+President (June 1998 to July 1999
+Chair, Local Arrangements Committee (1993 to 1994)
+Chair, Library School Outreach Committee (1994 /1995 to 1997)
+
+Scholarship Bash Committee, Volunteer Workers Coordinator (1999-2006)
+</td>
+  <td>Chair, Serials Caucus (1991/2)
+Georgia Library Association (GLA)
+Member, Conference Planning Committee, Exhibits Subcommittee (2015-2018)
+Member, Academic Division (2012 to date)
+Member, Awards Committee (2013 to 2018)
+Member, Professional &amp;amp; Continuing Education Interest Group (2014 to 2017)
+Peer Reviewer, GLA Quarterly (2012 to date)
+Hawaii Library Association
+ALA HLA Councilor (2008-2011)
+ALA HLA Councilor (2005-2008)
+ALA HLA Councilor (2002-2005)
+HLA Executive Board Member (2002 to 2011)
+Volunteer, Annual Conference Registration Committee (2003 to 2008)
+Volunteer, Annual Conference Silent Auction Committee (2003 to 2008)
+HLA Big Island Coordinator (2002 to 2012)
+Speaker, “Negative Workplace Behaviors” (2002 Conference)
+Hawaii Library Consortia
+Member At-Large (2006 to 2009)
+Member At-Large (2003 to 2006)
+North American Serials Interest Group
+Co-Chair, Mentoring Committee (1996 &amp;amp; 1997 Conferences)
+Member, Continuing Education Committee (1995 to 1997)
+Member, Evaluation Committee (1993)
+Speaker, "Serials Mentorship" (1995 Conference)
+Speaker, "Loose-leaf Management" (1990 Conference)
+Speaker, "Serials Automation" (1989 Conference)
+
+Southeaster Library Association
+Member, Mentoring Committee (2012 – 2018)
+Special Libraries Association, Florida Chapter
+Affirmative Action Officer (1990-1992)
+Co-chair DOI Workshop (1999)
+Education / Student Relations Officer (1991-1992)
+</td>
+  <td>• Georgia Library Association, Nix-Jones Award for Substantial Contributions to the Library Profession, 2016
+• Hawaii Library Association Service Award 2010
+• YMCA Hawaii County Remarkable People Award, 2009
+• Library Journal’s Mover and Shaker Award, 2005
+• Hawaii County Women’s Hall of Fame, 2005
+• Florida Atlantic University, College of Education, Educational Leadership, Outstanding Graduate Student, 1996/97
+• American Library Association / Association of College and Research Libraries, Lazerow Fellowship for Research, 1997
+• American Library Association / New Members Round Table, 3M Professional Development Grant, 1995
+• Florida Library Association, Florida Serials Librarian of the Year, 1994
+</td>
+  <td>ASSOCIATE DEAN OF LIBRARY SERVICES, LIBRARIAN PROFESSOR, AND ENGAGEMENT &amp;amp; ASSESSMENT SERVICES TEAM LEADER (EAST), Kennesaw State University, Georgia, July 1, 2012 to date. Co-facilitate the ongoing transformation of the KSU Library System’s collections, facilities, organization and services.  Assists in leading a multi-campus (two), multi-facility (three) organization with approximately 40 faculty librarians and 30 library staff.  Assists with the budget of approximately $6.5 million dollars. Responsible for creating a learning organization that concentrates on the University’s mission of recruitment, retention, progression and graduation for students.</td>
+  <td>Golian-Lui, Linda Marie. How to Survive Promotion Without Developing an Ulcer. In Shontz, Priscilla K. (Ed). The Librarian's Career Guidebook. Lanham, MD: Scarecrow Press (November 2004).
+
+Golian, Linda Marie. Reducing Negative Attention Seeking Workplace Behaviors Among Library Staff. Indian Journal of Library and Information Science. Vol.1, no. 2 (March 2001) (Invited article, Peer Reviewed)
+
+Golian, Linda Marie. Internet Resources for Educational Research. In Laurence, Helen and Miller, William (Eds.) Academic Research on the Internet: Options for Scholars and Libraries, v.30, no.1 / 2 of Journal of Library Administration. New York: Haworth, 2000. (Invited chapter author)
+</td>
+  <td>Selected Works: https://works.bepress.com/linda_golian-lui/</td>
+  <td>I believe that libraries (public, school, academic, and specialized) are a cornerstone to the American democratic society. They support our society’s core value of creating an informed citizenship to help not only with the government and representation of our citizens, but the pursuit of a meaningful life, a life of protected liberties, and a life where the pursuit of happiness is encouraged. At the heart of my library philosophy is the concept of intellectual freedom.  A society is transformed when users have unfettered access to information from multiple sources and multiple points of view. I am proud to be an American, I am even proud to be an educator, and most importantly, I am honored to be an American librarian and an active member of my profession.</td>
+  <td>31</td>
+</tr>
+<tr class="initial-show">
+  <td>Michael A. </td>
+  <td>Golrick</td>
+  <td>Head of Reference, Library Consultant</td>
+  <td>State Library of Louisiana</td>
+  <td>Baton Rouge</td>
+  <td>LA</td>
+  <td>State Library</td>
+  <td>Library Director, L.E. Phillips Memorial Public Library (Eau Claire, WI), 2006-2008
+
+City Librarian, Bridgeport (CT) Public Library, 2000-2006
+
+Executive Director, Southern Connecticut Library Council, 1995-2000</td>
+  <td>University of Illinois, MS in LS,  1976; University of Arizona, MBA, 1980; Brown University, 1975</td>
+  <td>UNITED
+ASGCLA
+PLA
+RUSA
+</td>
+  <td>Library Support Staff Interests (LSSIRT)
+Retired Members Round Table (RMRT)
+</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>ASGCLA Division Councilor, 2018-2021; ALA Councilor-at-Large, 2006-2012; ALA Executive Board, 2003-2006; CT Chapter Councilor, 1996-2003; Special Presidential Task Force on Membership Meetings, 1/00-7/03; Chair 7/02–7/03; Committee on Membership Meetings, 2018-2020, Chair 2018-2020; Presidential Task Force on Core Values, 7/00–7/04; Committee on Committees, 7/01–7/02; Planning and Budget Assembly, 1/01–7/03; Membership Committee, 6/99–7/03, Chair, 6/99–7/00; Council Orientation Committee member, 7/97–6/99; Resolutions Committee, 7/07–7/09, Chair 7/08-6/09; Digital Inclusion Survey Advisory Committee, 6/12 – 6/15
+ALA Executive Board Assignments: Finance and Audit Committee, 7/05–6/06; Board Effectiveness Committee, 7/04–6/06; Liaison Assignments (7/03–6/06): ALTA, ASCLA, PLA, Constitution and Bylaws, Membership Meetings Committee, OITP Advisory Committee, Committee on Organization, Committee on Research and Statistics, Urban Libraries Council; HRDR Advisory Committee (7/03–6/05)
+Association of Specialized and Cooperative Library Agencies (ASCLA), President-Elect, 6/15–6/16; President, 6/16–6/17; 1997 Pre-Conference, Co-Chair, 1995–1997; Interlibrary Cooperation and Networking Section (ICAN), Executive Committee, 7/00–7/02
+Public Library Association, Planning Measurement and Evaluation Section, 1998 Conference Program Committee, 1996–1998; Board of Directors, Issues and Concerns Cluster Representative, 7/2006– 6/2010
+</td>
+  <td>Wisconsin Library Association: Wisconsin Association of Public Libraries, Board of Directors, 2007 - 2008
+Connecticut Library Association (member 1983-2006): President, 7/99 - 6/00, Vice-President/President-Elect 7/98-7/99, Past President, 7/00-7/01
+ALA Chapter Representative (elected), 7/96 - 7/2000, reelected 7/00-6/03
+1998 Conference Co-Chair, 7/96-7/98
+Professional Educational Grants, Chair, 5/95 -6/96
+Region 4 Representative to Executive Board, 1993/94-1994/95
+Louisiana Library Association (member 2009 – )
+</td>
+  <td>FRANCIS KEPPEL AWARD, an annual award to State library agencies that have excelled in the completeness, promptness, and high quality of the local public library data that they collect, edit, and submit annually to the IMLS, 2009 - 2018 (all years)
+THE JOHN G. LORENZ AWARD, a biennial award to State library agencies for timely and accurate submission of State Library agency data to the IMLS, December 2010, 2012, 2014, 2016
+SUPPORTER OF SUPPORT STAFF 2002, annual award from the Support Staff Section of the Connecticut Library Association.
+</td>
+  <td>I have had the opportunity to serve as a Chapter President, President of a Division, and on the Executive Board. I was a public library and library consortium director for 25 years and have been at a state library agency for more than a decade.
+In my current position, I have helped to establish the ALA-APA Library Support Staff Certification as part of our CE offerings, and have had the joy of helping many support staff complete the certification process. (Louisiana has the second largest number of staff who have completed certification of all the states - only California has more.)
+</td>
+  <td>Strategic Success: Myth or Reality? Are Multitype Consortia Successful? [2000], http://www.ala.org/ascla/asclaissues/multitypeconsortia
+
+“Thoughts from a Library Administrator” – blog written since July 2005 http://michaelgolrick.blogspot.com
+</td>
+  <td>https://www.linkedin.com/in/golricklibraryadministrator/
+https://twitter.com/mgolrick
+https://michaelgolrick.blogspot.com/
+</td>
+  <td>I have had multiple opportunities to serve the profession and the Association. As a result, I think I can be effective as we move the Association in new directions. The process can be difficult to navigate at times, and my experience allows me to help others navigate through the processes. I have enjoyed the opportunity to serve, and would welcome the opportunity to continue to serve. My experience has been in the Divisions (ASGCLA and PLA in particular) and at the broader level with service on a number of Association and Council committees.
+
+</td>
+  <td>45</td>
+</tr>
+<tr class="initial-show">
+  <td>Stefani</td>
+  <td>Gomez</td>
+  <td>Library Director</td>
+  <td>Cedar Crest College</td>
+  <td>Allentown</td>
+  <td>PA</td>
+  <td>Academic</td>
+  <td>Information Literacy Librarian at Kutztown University of Pennsylvania, 2018-2020
+
+Research/Teaching Assistant Rutgers, the State University of New Jersey, 2010-2017
+
+Reference and Collection Development Librarian, Allentown Public Library. 2003-2008</td>
+  <td>EDUCATION
+1) Rutgers, the State University of New Jersey, Ph.D. in Information Studies/Communication 2017
+
+Dissertation: Information practices relative to parental mediation and the family context among Puerto Rican and Dominican teens.
+
+2) Rutgers, the State University of New Jersey, M.L.I.S. in Library and Information Science, 2005
+
+3) Pennsylvania State University, B.A. in English 2000 English Language and Literature, 2000</td>
+  <td>ACRL</td>
+  <td/>
+  <td>REFORMA</td>
+  <td>Yes</td>
+  <td>No</td>
+  <td/>
+  <td>• ACRL Delaware Valley Chapter Vice/President-Elect 2018/2019, President 2019-2020, Past President 2020-2021
+o Event Planning Committee, 2020 Fall Conference,
+o Chair Event Planning Committee, 2020 Spring Virtual Event, Convening Librarians: Creating community and supporting students during COVID-19
+o Chair of the Event Planning Committee for ACRL/DVC 2019 Fall Conference, Beyond Diversity Speak: Practicing cultural humility in your library
+o Event Planning Committee for ACRL/DVC, 2019 Spring Conference, we won an ACRL Roadshow Conference grant, Scholarly Communication: From Understanding to Engagement and for the
+o Event Planning Committee, 2018 Fall Conference, Librarians as Advocates: Leading Activism on Your Campus and Beyond
+</td>
+  <td>• SC&amp;amp;I Fellow, Rutgers School of Communication and Information PhD Program August 2016 – May 2017
+• Distinguished M.L.I.S. &amp;amp; Ph.D. Support, Rutgers Library and Information Science August 2015 – May 2016
+• Spectrum Doctoral Fellow, ALA Office of Diversity August 2008 – June 2012
+• Competitive fellowship that included full tuition and a stipend for four years
+</td>
+  <td>• Completed PhD Dissertation: Information practices relative to parental mediation and the family context among Puerto Rican and Dominican teens
+• Took over as Director of Cedar Crest College Cressman Library during the COVID-19 crisis and Black Lives Matter protests and is leading a cultural transformation committed to integrating equity work into every aspect of the library’s processes
+• Served as President of the Delaware Valley Chapter of ACRL and was highly involved in creating programming devoted to integrating social justice practices into academic librarianship
+• Conceived, authored, and led a cross-departmental team at Kutztown University to develop a set of online IL modules coupled with active instruction that flips IL instruction
+• Secured a $5000 grant for a research study at Kutztown University to assess the effectiveness of a flipped model to ascertain its broader applicability
+• Presented at numerous regional, national, and international conferences
+</td>
+  <td>Gomez, Stefani E. "Information practices relative to parental mediation and the family context among Puerto Rican and Dominican teens." PhD diss., Rutgers University-School of Graduate Studies, 2017.</td>
+  <td/>
+  <td>I am the Library Director at Cedar Crest College. I have an MLIS and PhD from Rutgers School of Communication, Information and Library Studies and 15+ years of experience in public and academic libraries and higher education. As a Spectrum Scholar, I benefitted significantly from the support of ALA and I am running to serve as a Councilor-at-Large to help extend the type of opportunities I have had to others. Libraries have an obligation to promote social and racial justice and If elected I will use my wide-ranging skill-set to help amplify the voices of BIPOC and to push libraries and librarians to assume responsibility for systemic inequities within the organization and the field.</td>
+  <td>4</td>
+</tr>
+<tr class="initial-show">
+  <td>Mario M. </td>
+  <td>Gonzalez</td>
+  <td>Executive Director</td>
+  <td>Passaic Public Library</td>
+  <td>Passaic</td>
+  <td>NJ</td>
+  <td>Public</td>
+  <td/>
+  <td>Harvard Business School, Executive Education Program; Columbia University, Teachers College, M.Ed., Adult Education (in progress); Pratt Institute, Graduate School of Library &amp;amp; Information Science, M.L.I.S.; City College of New York, B.A., Spanish &amp;amp; Psychology; Florida Institute of Technology, Aerospace Engineering Program.</td>
+  <td>ACRL
+ALCTS
+ALSC
+UNITED
+ASGCLA
+LITA
+PLA
+RUSA
+LLAMA
+YALSA
+AASL</td>
+  <td>Ethnic &amp;amp; Multicultural Information Exchange RT (EMIERT)
+Social Responsibilities Round Table (SRRT)
+International Relations (IRRT)
+Intellectual Freedom Round Table (IFRT)</td>
+  <td>AILA
+APALA
+BCALA
+CALA
+REFORMA</td>
+  <td>No</td>
+  <td>No</td>
+  <td>Treasurer of ALA, 2013-2016; Executive Board, 2006-2009, 2013-2016; Chair Finance &amp;amp; Audit Committee, 2013-2016; Trustee of ALA Long Term (Foundation) Investment, 2013-2016, 2018-present; Councilor-At-Large, 1996-present; Chair of Budget Analysis and Review Committee (BARC), 2010-2011; Member of Budget Analysis and Review Committee (BARC), 2006-2012; Finance &amp;amp; Audit Committee, 2010-2011; ALA Finances 101 (a.k.a. Financial Planning Seminar) 2006-2012; Planning &amp;amp; Budget Assembly (PBA), 1997-1999 and 2006-2016; President's Steering Committee, 2009-2011; ALA President's Task Force on Elections, 2008-2011; ALA Campaign for America's Libraries, 2009-present; ALA International Relations Committee (IRC), 2004-2006; ALA Nominating Committee, 2003-2004; ALA Committee on Committees, 2002-2003; ALA Chapter Relations Committee, 2001-2003; ALA World Book/Gale Award Committee, 2001; ALA Literacy Assembly, 1998-1999; Public Library Association (PLA) Board of Directors, 2004-2007; PLA Leadership Committee, 2007-2012; PLA Nominating Committee, 2006; RUSA Executive Board, 1992-1995; ASCLA Board, 2000-2003; EMIERT President, Executive Board, Committees and member, 1998-present; ALA Committee on Pay Equity, 1993-1995; Member of Association of College &amp;amp; Research Libraries (ACRL), Social Responsibility Roundtable (SRRT), Intellectual Freedom Roundtable (IFRT)</td>
+  <td>Treasurer, Freedom to Read Foundation; New Jersey Library Association (NJLA), member; Chinese-American Library Association (CALA), Life Member; Black Caucus of the American Library Association (BCALA), member; REFORMA National Association, Life Member, President, 1991-1992; Executive Board, 1986-1994; Chair, Exhibits Committee, First National Conference, 1995-1997; Northeast Chapter (NY, NJ, PA, MA, CT) Founding Member; President, 1998-1990; Treasurer, 2001-2008; Co-Founder REFORMA Puerto Rico Chapter; Passaic/Essex County NJ Area Library Consortium (PALS Plus), Treasurer, President, and member 2009-present; Rotary Club International - Passaic NJ Chapter, Treasurer and President, 2009-present; Fairfield CT Library Directors Group (FLAG), Scholarship Committee and Life Member; Greenwich Alliance for Education, Board of Directors; Greenwich Hospital, Community Advisory Board Member.</td>
+  <td>Appreciation Award, ALA Executive Board, 2006-2009; Recognition Award, Mayor, City of Passaic, NJ, 2009; Connecticut Award for Excellence in Public Library Architecture, 2005; Connecticut Library Association Excellence in Public Relations Award, 2004, 2005, 2007, 2008; Town of Greenwich Team of the Year Award - Greenwich Library, 2002; Brooklyn Borough President Award for Serving People with Disabilities; REFORMA Librarian of the Year Award, 1994; Pura Belpre Award at the United Nations for Outstanding Service to the Spanish Speaking in the Northeastern U.S., 1993; Eleanor Roosevelt Community Service Award for Service to the Homeless, 1989.</td>
+  <td>Team Leader and Panel Reviewer of several Government Grants, NEH, IMLS and U.S. Dept. of Education; Guest Speaker on Library Services, Finances and Budgets at Universities in Mexico (in Spanish), Costa Rica (in Spanish) and Kosovo, invited by the U.S. Dept. of State; Library Trustee, President, Treasurer, and Secretary, Orangeburg Library, Orangeburg, New York; Adjunct Professor, Long Island (NY) University, Palmer School of Library and Information Science; Faculty Advisor, Empire State (NY) College; Advisory Board Member, Facts-on-File Publications, Advisory Board Member, New York City Mayor's Office for Persons with Disabilities; Chair, New York City Literacy Alliance Staff Development on Disabilities Committee; Consultant, ESOL Programs &amp;amp; Services, World Language Collection Development in New Jersey, New York, Connecticut and Texas; interviewed for documentary film, "A Gift of Joy-Serving the Aging" (1999) to record my work with older adults and libraries in Brooklyn, NY.</td>
+  <td>"Looking at a Gift Horse in the Mouth: Developing Gift Policies for Public Libraries", Association of Connecticut Library Boards
+
+Como Interesar a Sus Hijos en Leer" (How to Interest Your Child in Reading), La Familia de Hoy.
+
+"Latin American, Latino (U.S.), Spain and Portugal", Magazines for Libraries, R.R. Bowker.</td>
+  <td/>
+  <td>I have been working in public libraries and research libraries for more than half of my life providing services and outreach to all; children, young adults, people with disabilities and especially to the traditionally underserved. I have taught library science programs. As a paraprofessional, faculty, trustee and administrator, I have consistently advocated for the importance of libraries as informational and cultural centers.  I am successful in bringing together people of diverse backgrounds and interests to improve library and information services. As a member of the ALA Council, I will continue to work hard for you by keeping ALA responsive to the needs and concerns of all its members as the organization transitions into new structures; ensure a balance between functions of the ALA offices and membership units; keeping ALA focused on member-driven priorities; and strengthening the voice of the Association in national and international forums.</td>
+  <td>35</td>
+</tr>
+<tr class="initial-show">
+  <td>Rhonda K. </td>
+  <td>Gould</td>
+  <td>Executive Director</td>
+  <td>Walla Walla County Rural Library District</td>
+  <td>Walla Walla</td>
+  <td>WA</td>
+  <td>Public</td>
+  <td>Consultant, By the Book Consulting, 2013-16
+
+Interim Director, Puyallup (WA) Public Library, 2015</td>
+  <td>University of Wisconsin-Madison, MLIS, 1996; University of Wisconsin-Madison, BA Art History, 1986.</td>
+  <td>ALSC
+ASGCLA
+PLA
+LLAMA</td>
+  <td>Social Responsibilities Round Table (SRRT)
+Intellectual Freedom Round Table (IFRT)</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>ALA Council, 2019-2021(at-Large), 2010-2012 (ALSC Division Councilor); Council Committee on Committees, 2011;  ALA Conference Planning Coordinating Team, Chair, 2008 and 2009; ASGCLA/ASCLA, President 2015-16; ASCGLA, Nominating Committee 2019; ASCLA Awards Committee, 2009; ASCLA Conference Coordinator, 2008-12; ALSC, Chair, 2017 Caldecott Committee; ALSC, Board of Directors/Executive Board, Division Councilor, 2010-2012; ALSC, Member, 2008 Caldecott Committee; ALSC, Chair, Budget Committee 2005; much more.</td>
+  <td>Washington Library Association, President, 2019; WaLA Legislative Committee, Co-Chair, 2019-2021; Wisconsin Library Association, President, 2011; WLA Wisconsin Association of Public Libraries, Chair, 2008; WLA Outreach Services Round Table, Chair, 2005; WLA Youth Services Section, Chair, 2003; WLA Library Development and Legislative Committee, 2006-2008, 2010-2012; Collaborative Summer Library Program (CSLP), President, 2011-2012, CSLP, Diversity Committee Chair and Board Member, 2007-2012.</td>
+  <td>Selected participant in Walla Walla Sherwood Trust Diversity and Inclusion Cohort, 2019; Gubernational appointment to COLAND (state of Wisconsin's Council on Library and Network Development), 2012.</td>
+  <td>In the past three and a half years at WWCRLD, I have managed the completion of two remodel/renovation building projects, a catalog conversion, a marketing rebrand with a new logo and a new website, and passed an annexation election to provide library service in a community that was the largest town in the state without library service.   A new library in this community will be ready to open in the summer of 2020.  </td>
+  <td>Editor: 2016 Collaborative Summer Library Program Adult Manual, "Exercise Your Mind: Read!" theme.</td>
+  <td>www.facebook.com/rhonda.k.gould
+www.twitter.com/rhonda,k.gould</td>
+  <td>The activity of ALA Council exemplifies the best of our organization. That is, the collaboration and advocacy among divisions and roundtables, the leadership of individuals, and the timely discussion of the issues ALA is facing now and in the future. I have been an active member of ALA for well over a decade and I have held increasingly more responsible leadership roles within the divisions where I've found my home within ALA. I hope someday to be able to give back to ALA what I have received in terms of professional development, networking and mentoring, and opportunities for leadership and growth. A strong association unifies librarians by bringing us together and providing opportunities for learning and growth to support our libraries, We know the value of librarians who are strong advocates within their communities. I will be honored to represent all of you strong advocates on ALA Council.</td>
+  <td>22</td>
+</tr>
+<tr class="initial-show">
+  <td>Michele</td>
+  <td>Green</td>
+  <td>Library Media Technology Integration Specialist</td>
+  <td>School District of Greenwood</td>
+  <td>Greenwood</td>
+  <td>WI</td>
+  <td>School</td>
+  <td>Instructional Resource Coach, School District of New London, 2008-2017
+
+Library Media Director, School District of Black River Falls, 2006-2008</td>
+  <td>University of Wisconsin-Whitewater, MSE Professional Development with an emphasis in Information, Technology, and Library, 2013; University of Wisconsin-Oshkosh, BS Elementary Education with a minor in Library Science, 2006.</td>
+  <td>AASL</td>
+  <td/>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td/>
+  <td>Wisconsin Educational Media and Technology Association (WEMTA), President, 2016-2019; Wisconsin Educational Media and Technology Association (WEMTA), Board member, 2013-2016; Wisconsin Educational Media and Technology Association (WEMTA), K-12 Programs Chair, 2013-2017; Wisconsin Golden Archer Award, Committee head, 2011-2016; ISTE Member, 2013-present.</td>
+  <td>Wisconsin Reading Association Leadership in Literacy Technology Award, 2013.</td>
+  <td>As a school library media specialist, Michele Green has 15 years of experience in all grade levels. Having served as a single librarian in a K-12 district, an elementary librarian overseeing four schools, and a middle school librarian in a single school, she understands the disparities school librarians face. Michele has served as President of her state school library and technology association and has worked with the WI Department of Education to revamp the library media specialist evaluation process. Michele has also served on a public library board as the school liaison and has written two successful grants in partnership with her local public library.</td>
+  <td/>
+  <td/>
+  <td>ALA has provided me with a wealth of knowledge since beginning my career and I would be honored to share my ideas, energy, and excitement in the Councilor-at-Large position. I believe in the creation of strong library media programs which integrate and encourage technology use. I believe in the collaboration of school and public libraries to build better communities. Association members can be excellent resources for each other and I believe creating networks among our own colleagues will serve us indefinitely. When we learn, inspire, and shape each other, our profession grows. In this position, I would hope to promote active membership in the association, encourage new library media specialists to join and use its benefits, as well as work with the Board of Directors to address the ever-changing library and technology field.</td>
+  <td>12</td>
+</tr>
+<tr class="initial-show">
+  <td>Bitsy</td>
+  <td>Griffin</td>
+  <td>School Librarian</td>
+  <td>Chatham Grove Elementary</td>
+  <td>Pittsboro</td>
+  <td>NC</td>
+  <td>School</td>
+  <td>School librarian, Old Town ES, 2016-2020
+
+School Librarian, Moore ES, 2013-2016
+
+School Librarian, C.C. Griffin MS, 2012-2013</td>
+  <td>Indiana University, BGS,  Math, 1996
+East Carolina University, MLS, Library Science 2012</td>
+  <td>AASL</td>
+  <td>Library Instruction Round Table (LIRT)</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>ALA Council, 2019-2021
+AASL Leadership Development Committee, 2020-2021
+AASL task force to rewrite the Instructional Role of the School Librarian Position Statement, 2019
+AASL Region 4 Representative, 2018-2020
+AASL Affiliate Assembly Delegate, 2017-2020</td>
+  <td>North Carolina School Library Media Association:
+• Technology Director, 2020-present
+• Immediate Past President, 2019-2020
+• President, 2018-2019
+• President Elect/Conference Chair, 2017-2018
+• Advocacy &amp;amp; Governance Director, 2015-2017</td>
+  <td>Emerging Leader, North Carolina School Library Media Association, 2014-2015
+Teacher of the year, Peck Elementary School, 2011
+Teacher of the year, Calvary Day School, 2007</td>
+  <td>As Advocacy Director of NCSLMA, we reimaged our Emerging Leaders program and then changed it to a Leadership Academy while I was President. Also during my presidency, we had our first State Library Legislative Day, rewrote our mission and vision statements, and streamlined our board of directors. </td>
+  <td>Griffin, Bitsy: “Newsletters for Communicating with Stakeholders,” Knowledge Quest, 7/10/2020.
+
+Griffin, Bitsy: “Conferences in a Pandemic,” Knowledge Quest, 5/12/2020.
+
+Griffin, Bitsy: “Story Retell With Stop Motion,” Knowledge Quest, 3/4/2020.
+</td>
+  <td>Knowledge Quest Blog Articles</td>
+  <td>As a school librarian, I am concerned that administrators still do not consistently understand fully what role we should play in schools. We've got to find was to show administrators the comprehensive ways that school librarians participate in a school's structure as instructors and instructional support for all the stakeholders. We need to encourage school librarians to boldly advocate for their own programs.
+We also need to partner with other librarians to show the continuum of libraries that make for a strong and literate society.
+</td>
+  <td>8</td>
+</tr>
+<tr class="initial-show">
+  <td>Amy J. </td>
+  <td> Hafer</td>
+  <td>Library Director</td>
+  <td>Hastings Public Library</td>
+  <td>Hastings</td>
+  <td>NE</td>
+  <td>Public</td>
+  <td>Manager, Library Materials Services, Arapahoe Library District, Englewood, CO February 2003-December 2008</td>
+  <td>University of Denver, MSLIS, 2002
+University of Denver, Certificate of Advanced Knowledge, 2002
+University of Nebraska - Kearney, BS Business Administration, 1997</td>
+  <td>PLA</td>
+  <td/>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td/>
+  <td>Nebraska Library Association, Public Libraries and Trustees Section, Secretary/Treasurer, 2013-present.
+Colorado Association of Libraries, Conference Planning Committee, 2006-2008
+Colorado Association of Libraries, Co-Chair, Conference Planning Committee, 2008</td>
+  <td>Mountain Plains Library Association Library Leadership Institute Graduate 2004
+Nebraska Library Leadership Institute Graduate 2009
+Hastings Public Library - Nonprofit Business of the Year 2015
+Hastings Area Chamber of Commerce - Max Award 2017</td>
+  <td>Led the complete renovation of our 30,000 sq ft downtown library in 2017 which garnered the AIA Award of Excellence 2018 - Hastings Public Library Renovation/Addition</td>
+  <td/>
+  <td/>
+  <td>My professional aspiration is to challenge myself more at the leadership level by helping in professional organizations and working with librarians across the region and country. I believe our professional organizations often get so large and difficult to navigate that we lose sight of good communication and purpose in terms of helping individual libraries on a day-to-day basis.</td>
+  <td>10</td>
+</tr>
+<tr class="initial-show">
+  <td>Tyler</td>
+  <td>Hahn</td>
+  <td>Director</td>
+  <td>Cherokee Public Library</td>
+  <td>Cherokee</td>
+  <td>IA</td>
+  <td>Public</td>
+  <td>Collections Associate, Sanford Museum and Planetarium, June 2012- June 2020
+
+Library Specialist, Western Iowa Tech Community College, November 2014- March 2018
+
+Youth and Special Services Librarian, Cherokee Public Library, February 2018-June 2020
+</td>
+  <td>University of Iowa, BAS Creative Writing 2015
+Western Iowa Tech Community College, AA General Studies, 2012
+</td>
+  <td>YALSA</td>
+  <td>Graphic Novels &amp;amp; Comics Round Table (GNCRT)</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td/>
+  <td>State Library of Iowa, Youth Advisory Council, 2019-Present
+Iowa Governor's STEM Council, 2019-Present
+Communications Committee, Iowa Library Association, 2019-Present
+</td>
+  <td>Iowa STEM Gem Poster Series, Library feature, 2019</td>
+  <td/>
+  <td>"What Goes Into Building an Esports Team: Building the Team By Connecting With Community," YALS, Volume 18, Number 2, Winter 2020
+
+Hahn, T. (2020, May 12). Esports: The Athletics Of Remote Living • Teched Up Teacher. http://www.techedupteacher.com/esports-the-athletics-of-remote-living/
+</td>
+  <td>https://www.linkedin.com/in/tyler-hahn-426a44126/</td>
+  <td>I aspire to represent the rural voices in librarianship and to represent rural and smaller libraries within the greater ALA. </td>
+  <td>2</td>
+</tr>
+<tr class="initial-show">
+  <td>Christopher J. </td>
+  <td>Hemingway</td>
+  <td>Circulation Librarian</td>
+  <td>Hagaman Memorial Li</td>
+  <td>East Haven</td>
+  <td>CT</td>
+  <td>Public</td>
+  <td/>
+  <td>• Southern Connecticut State University, MLS, 2009
+• University of Connecticut, BA, Political Science and History, 1999
+</td>
+  <td/>
+  <td/>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td/>
+  <td>Connecticut Library Association Annual Conference Co-Chair, 2021; Connecticut Library Association Region 5 Rep, 2017-2019, Awards Committee, Chair 2017-2019; Connecticut Digital Library Advisory Board. 2017-2019</td>
+  <td>Connecticut Futures Partner State Scholarship, 2017; New England Library Association New Attendee Scholarship, 2017; Association of Connecticut Library Boards Award, 2006; East Haven Courier Person of the Week, 2015</td>
+  <td>Author of "The Day The Bull Lived: And Other Poems" and Contributing Author for "The Connecticut 169 Club"  Upcoming Books: "The Night The Bull Slept" and "The Candlemaker's Widow"</td>
+  <td/>
+  <td/>
+  <td>As we continue to deal with COVID-19, civil unrest, threats to our democracy, and censorship, the library stands as the beacon of hope for the world. If elected, I would stand for all the principles that libraries fight for. Being my 3rd attempt at running for ALA Councilor, I am one not to quit for what I believe in and would spread the message LOUD and CLEAR that libraries will continue to move forward, STRONGER than ever before, during these difficult times.</td>
+  <td>3</td>
+</tr>
+<tr class="initial-show">
+  <td>Carrie</td>
+  <td>Herrmann</td>
+  <td>Director</td>
+  <td>Boone County Public Library District</td>
+  <td>Burlington</td>
+  <td>KY</td>
+  <td>Public</td>
+  <td>Public Service Coordinator Boone County Public Library District June 2005-October 2014
+
+Access Services Coordinator Boone County Public Library District February 2000-June 2005
+
+Assistant Branch Manager Campbell County Public Library (KY) February 1997-February 2000</td>
+  <td>Northern Kentucky University, Bachelor of Arts in English, 1991
+University of Kentucky, Masters of Science in Library and Information Studies, 1998</td>
+  <td>PLA</td>
+  <td/>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>• Served on Romance Writers of America Library Grant Jury, 2019 &amp;amp; 2020
+• Presented at Public Library Association Conference, “Project Outcome in Practice:  Using Outcome Data to Measure and Improve Impact,” March 2018
+• Presented American Library Association Webinar, “Project Outcome Panel:  User Experiences &amp;amp; Lessons Learned,” June 2017.
+• PLA Continuing Education Advisory Group Member, 2014-2016
+• Presented at American Library Association Annual Conference, “Smart investing @your library®: Adding Value In Your Community,” June 2014
+• Presented at Public Library Association Conference, “Abolishing Performance Evaluations:  Why They Don’t Work and What Does,” March 2012
+• Presented at American Library Association Annual Conference, “Collaborating with other Libraries in your Community, Success Stories,” June 2004</td>
+  <td>• Served on Kentucky Public Library Association Conference Planning Committee, 2009-2015
+• Served on SWON (Southwest Ohio and Neighboring Libraries Consortium) Executive Board, 2009-2011
+• Served on state committee for Public Library Standards (Access Services subcommittee), Kentucky Department of Library and Archives, 2001 and 2008-2009.</td>
+  <td>• Kentucky Governor's Commonwealth Institute of Parent Leadership Fellow, 2012
+• Leadership Northern Kentucky graduate, class of 2013</td>
+  <td>• Wrote two successful Smart Investing @ Your Library Grants for $100,000 each.
+• Started and managed Kentucky Libraries Unbound, the statewide consortium for eMaterials
+• Successful building project of the Hebron Branch that opened July 2019. </td>
+  <td/>
+  <td>https://www.linkedin.com/in/carrie-herrmann-3929758/</td>
+  <td>Libraries are not about books.  We are about information and knowledge; and how do we share that with our community to build relationships.  I believe that librarianship is built around customer experience, making connections/building relationships, lifelong learning, and sharing stories.  Customer experience is showing genuine respect to all who come through our doors, whether that is staff or community.   Libraries take that experience and build connections and relationships.  Those connections take many forms--between the library and the community; between individual community members; between community members and agencies and organizations; and between community agencies and organizations.  Behind all of these experiences and relationships we promote growth through lifelong learning.  If we do the first three, we help tell our community’s story.  Every decision made should be examined through a lens that asks:
+• How does this affect the community?;
+• How does this affect the staff?; and
+• How does this affect the organization?
+</td>
+  <td>7</td>
+</tr>
+<tr class="initial-show">
+  <td>Nicole</td>
+  <td>Holifield, MSW, MLIS</td>
+  <td>Director</td>
+  <td>Tonganoxie Public Library</td>
+  <td>Tonganoxie</td>
+  <td>KS</td>
+  <td>Public</td>
+  <td>Library Director Tonganoxie Public Library 09/01/2016 to Present
+Youth and Adult Services Coordinator Tonganoxie Public Library 03/01/2015 to 08/31/2016
+
+Program Manager, Services for Pregnant Women, Private Adoptions, Services for the Individuals/Families who were Homeless Catholic Charities of Kansas City-St. Joseph 05/15/2006 to 02/05/2015
+</td>
+  <td>University of Missouri-Columbia, MLIS (Masters of Library and Information Science), 2019; University of Missouri-Kansas City, MSW (Masters of Social Work); 2007Park University, B.S. of Social Psychology, 2004</td>
+  <td>LLAMA</td>
+  <td>Sustainability (SustainRT)</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td/>
+  <td/>
+  <td/>
+  <td>Construction of a new library from the campaigning for a 3/4 cent sales tax in 2016, design of the floor plan, writing the RFQ to pick a design/build team clear through the completion of the project in March of 2020.  Also, elevated the Tonganoxie Public Library by working closely with an advertising firm to rebrand the overall look of the library's website and logo.
+Lastly, introduced the following programs to the library:
+1. Chieftain Cafe serves snacks to children from birth to 18 years old (started in 2017 with over 30,000 visits to date).
+2. Halloween costumes to those families that could not afford one for their child/ren.
+3. Community Garden where individuals could plant and harvest their fruits/vegetables.
+5. Top Shelf Showcase that allowed individuals to promote their art.
+6. Ruff REaders where children could read to dogs weekly.
+7. Bingo and health-related programs for Senior Citizens of the community.
+8. Phone Calls with Howard.  Our staff member Howard calls individuals weekly who need someone to talk to because they are homebound.
+</td>
+  <td/>
+  <td>Personal and Professional Web Page; https://www.nicoleholifield.com/</td>
+  <td>While transitioning from social work for over 16 years into the library field, I noticed there are many similarities yet many differences. I learned of this through graduate school and listening to other cohorts that were having a tough time navigating the steps and the aftermath of working with patrons that needed supplemental support they did not feel trained.  I became aware that librarians were expected to take on social worker duties when they had not been trained in specific skills. One of my goals is to make sure that library staff is trained in trauma-informed care.
+Also, while being a library director, I have found that the support for library staff/directors, in general, is lacking.  I hope to create a position within the system where the main focus of this job is to go around to libraries (especially rural) to support the team as a whole.
+</td>
+  <td>3</td>
+</tr>
+<tr class="initial-show">
+  <td>Sonnet</td>
+  <td>Ireland</td>
+  <td>Branch Manager</td>
+  <td>St.Tammany Parish Library</td>
+  <td>Slidell</td>
+  <td>LA</td>
+  <td>Public</td>
+  <td>Reference Librarian, St. Tammany Parish Library, 2016-2019
+
+Associate Librarian, Earl K. Long Library, University of New Orleans, 2009-2016
+
+Government Documents Library Associate, Tulane University Law Library, 2007-2009</td>
+  <td>Texas Woman's University, MLIS, 2008
+Loyola University New Orleans, BA Classical Studies, 2004</td>
+  <td>PLA
+RUSA
+LLAMA</td>
+  <td>Ethnic &amp;amp; Multicultural Information Exchange RT (EMIERT)
+Gay, Lesbian, Bisexual, and Transgender Round Table (GLBTRT)
+Government Documents (GODORT)
+</td>
+  <td>AILA</td>
+  <td>No</td>
+  <td>Yes</td>
+  <td>RUSA Emerging Technologies Section (ETS), Services for Systems and Discovery (SSD) Committee, Member, 2016-2018
+GODORT, Notable International Documents Panel, Selector, 2019-2020
+GODORT, Notable International Documents Panel, Judge, 2016-2019
+GODORT, State and Local Documents Task Force, Coordinator, 2016-2017
+GODORT, State and Local Documents Task Force, Assistant Coordinator/Coordinator-Elect, 2015-2016
+GODORT, Government Information Technology Committee (GITCO), Intern, 2009-2010
+GODORT, GITCO Ad Hoc Communications Subcommittee on Tools for Training and Knowledge Sharing, Member, 2009-2010
+GODORT, Ad Hoc Communications Committee, Member, 2009-2010
+Assisted with planning the 2018 GODORT Reception and Awards Ceremony
+Assisted with planning the 2011 GODORT Reception and Awards Ceremony
+</td>
+  <td>LLA, Past President, 2020-2021
+LLA, President, 2019-2020
+LLA, 1st Vice President/President-Elect, 2018-2019
+LLA, 2nd Vice President, 2017-2018
+LLA, Chair, Academic Section, 2015-2016
+LLA, Vice Chair/Chair-Elect, Academic Section, 2014-2015
+LLA, New Members Round Table, Chair, 2013-2015
+LLA, New Members Round Table, Vice Chair/Chair-Elect, 2012-2013
+LLA, Secretary, Government Documents Round Table, 2009-2010
+Louisiana State Depository Library Council, Member, 2014-current
+Louisiana State Depository Library Council, Participant, 2007-2014
+Louisiana State Depository Library Council, User Representative, 2010-2012
+Southeastern Library Association (SELA)
+SELA, Chair, Government Documents Round Table, 2017-2018
+SELA, Vice Chair/Chair Elect, Government Documents Round Table, 2015-2017
+
+NOLA Information Literacy Collective (ILC)
+NOLA ILC, Executive Board Member, 2013-2018
+NOLA ILC, Executive Board Chair, 2014, 2017
+
+Louisiana Federal Depository Library Council (LaFDLC)
+LaFDLC, Participant, 2007-2016
+LaFDLC, Chair, 2012-2014
+LaFDLC, Academic Library Representative 2009-2011
+Louisiana Academic Library Information Network Consortium (LALINC), Information Literacy Committee, 2011-2013
+</td>
+  <td>LLA GODORT Recognition Certificate (2012)
+Special Recognition to the UNO Earl K. Long Library for the Project of Digitizing U.S. Senate and House Hearings from the 1960s, 1970s, and 1980s.
+2011 Deborah and Sam Brackstone Grant (2011)
+The Brackstones donated $500 to support travel for a University of New Orleans librarian or staff member who is giving a professional library presentation in 2011. Awarded the grant with Faith Simmons for the Brick &amp;amp; Click Libraries Symposium.
+EBSCO/ALA Conference Sponsorship Award (2010)
+Annual award consisting of $1,000 for actual reimbursed expenses, designed to allow librarians to attend the ALA’s Annual Conference.
+</td>
+  <td>I became President of the Louisiana Library Association at a challenging time. We started transitioning to a new management team at the start of my year, and we successfully untangled numerous financial issues.  We managed to make some important changes within the organization, including updating our bylaws, and we even organized our annual conference ahead of time.  Unfortunately, we then had to make the disappointing but necessary decision to cancel our conference due to COVID-19.  My greatest achievement this year would have to be leading the board to issue a statement on racism.  As a result of my leadership, we were the first state association in the south to issue such a statement.  We have also begun the long process of increasing our diversity within the organization and ensuring that we serve all of our Louisiana library workers.</td>
+  <td>Ireland, Sonnet. “Reconsidering the Master’s Degree, Part 2: Lifting Each Other Up.” Public Libraries 58.1 (January/February 2019): 13-15. Print
+
+Ireland, Sonnet. “Fake News Alerts: Teaching News Literacy Skills in a Meme World.” The Reference Librarian (2018), doi:10.1080/02763877.2018.1463890
+
+Ireland, Sonnet. “Information Literacy and Instruction: For Your Information: Using Information Literacy in Public Libraries.” Reference &amp;amp; User Services Quarterly 57, no. 1 (Fall 2017): 12-16. doi:10.5860/rusq.57.1.6436.
+
+</td>
+  <td>https://sonnetireland.wordpress.com/ </td>
+  <td>I will always be passionate about government information and its accessibility, and I am still very much focused on fake news and its impact on our society, particularly how library workers can address it while keeping our sanity.  However, this pandemic has prompted me to become more public on something that has troubled me privately for years--how to protect and advocate for library workers and libraries, in general.  I have always been passionate about accessibility issues, but now I'm looking more at the issues our staff face when dealing with invisible disabilities.  As someone who faces these challenges in my own personal and professional life, I think it is important to advocate for those who do not have the freedom to do so for themselves.</td>
+  <td>10</td>
+</tr>
+<tr class="initial-show">
+  <td>Kathy</td>
+  <td>Lester</td>
+  <td>School Librarian</td>
+  <td>East Middle School</td>
+  <td>Plymouth</td>
+  <td>MI</td>
+  <td>School</td>
+  <td>School Librarian Howell Public Schools 9/2002 - 8/2013
+
+Software Engineer &amp;amp; Director of Operations FAAC Inc. 1980-1995
+</td>
+  <td>Wayne State University, MLIS, 2001; Eastern Michigan University, MA, 1988, Mathematics; Michigan State University, BA, Major: Mathematics, Minor: Spanish, 1981.
+
+</td>
+  <td>AASL</td>
+  <td/>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>Member, ALA Committee on Library Advocacy, July 1, 2019, to June 30, 2021; Member, ALA State Ecosystem Initiative, 2018- current, Board Member, AASL, July 1, 2018, to June 30, 2020; Member, AASL Practice Committee, 2016 - current; Board liaison, AASL School Library Month Committee, 2018-2019; Chairperson, AASL Libraries in Public Charter Schools Task Force, 2017-2018; Participant, AASL Advocacy &amp;amp; Legislative Coalition Calls, 2016-2017; Representative, AASL Affiliate Assembly, 2013, 2014</td>
+  <td>Michigan Association for Media in Education:  Board Member, 2010-current; Advocacy Chairperson, 2016-current; ISTE Affiliate Representative, 2015-2017; Spring Institute Chairperson, 2016;  President, 2014; Executive Committee Member, 2013-2015; Annual Fall Conference Chairperson, 2013; Annual Fall Conference Committee Member, 2014-current; Newsletter Editor, 2010-2013.
+Michigan Association for Computer Users in Learning (MACUL): SIGLIB Communications Officer, 2018-2019; SIGLIB Steering Committee, 2016-2018
+</td>
+  <td>Michigan Department of Education, Model 21st Century School Library (SL 21) Award, 2017-2018; Michigan Association for Media in Education (MAME): Michigan School Library Program of the Year, 2017; International Society for Technology in Education (ISTE): Making IT Happen Award, 2017; Wayne State University School of Information Science: Shining Star, 2017; Michigan Association for Media in Education (MAME): President's Award, 2016; Wayne State University: SLIS Professional Service Award, 2015; Library of Michigan Foundation: State Librarian's Excellence Award, 2012; Howell Public Schools: Excellence in Education Honoree, 2008; Wayne State University: Beta Phi Mu and Dean's Merit Scholarship Award, 2000</td>
+  <td>I am very proud of my work as Chairperson of the Advocacy Committee for the Michigan Association for Media in Education.  We were successful in having three bills introduced in the Michigan House of Representatives to require every school to have a school library staffed by a certified school librarian.  We have also built a coalition of supporters including other education, library, and community organizations.  Please find our latest newsletter here: https://www.smore.com/8r2c4.
+I am also proud of my work including STEM in my library program.  I have been involved in Making and Coding with my students since 2014.  I have been a sponsor of a Girls Who Code Club for three years.  I have applied for and won several grants to support STEM activities in my library including several grants from the Education Excellence Foundation in my district, a Maker Ambassador Grant through the Wayne County Regional Education Service Agency, and an ALA Ready to Code Mini-Grant.  I have presented at many conferences about making/coding and many other topics.  See: http://bit.ly/KMLcsv
+</td>
+  <td>Author: “School Libraries for All Students,” Accessibility, Compliance &amp;amp; Equity in Education”, January/February 2020, https://ace-ed.org/school-libraries-for-all-students/
+
+Author, “Making, Coding, and Games!" School Library Connection, December 2018, schoollibraryconnection.com/Home/Display/2148472
+
+Author, “Opinion: School library media specialists critical to student achievement,” Detroit News, August 1, 2018 (https://www.detroitnews.com/story/opinion/2018/08/02/school-library-media-specialists-critical-student-achievement/871174002/)
+</td>
+  <td>Link to CV for Kathy Lester: http://bit.ly/KMLcsv
+Twitter account: @LibraryL
+Link to East Middle School Library Website: http://bit.ly/eastmslib
+</td>
+  <td>I believe that the American Library Association is an important institution in our society.  ALA's advocacy for intellectual freedom, equity of access to information, copyright standards, and media literacy education as well as the services that it provides to its members are vital.  I believe that the Library Ecosystem is important and that every type of library provides unique and necessary services to their patrons.  I also believe in the AASL Vision Statement: "Every school librarian is a leader; every learner has a school librarian."  I also believe that as we move forward we have to work diligently to ensure that ALA and its divisions truly embrace and act on our values of equity, diversity, and inclusion.  As ALA Councilor, I would work to ensure that ALA and its divisions work toward these goals and beliefs.
+
+</td>
+  <td>11</td>
+</tr>
+<tr class="initial-show">
+  <td>Rodney</td>
+  <td>Lippard</td>
+  <td>Director, Library and Center for Student Achievement</td>
+  <td>University of South Carolina Aiken</td>
+  <td>Aiken</td>
+  <td>SC</td>
+  <td>Academic</td>
+  <td>Director, Learning Resource Center, Rowan-Cabarrus Community College, 2011-2016
+
+Director, Hackney Library, Barton College, 2006-2011
+
+ILS Workflow Librarian, University of North Carolina Chapel Hill, 2004-2006</td>
+  <td>University of North Carolina Greensboro, MLIS, 1995; University of North Carolina at Chapel Hill, BA, Radio, Television, and Motion Pictures, 1988</td>
+  <td>ACRL
+ALCTS
+LITA
+RUSA
+LLAMA</td>
+  <td>Exhibits Round Table (ERT)
+Ethnic &amp;amp; Multicultural Information Exchange RT (EMIERT)
+Social Responsibilities Round Table (SRRT)
+Learning RT (LearnRT, formerly CLENERT)
+Gay, Lesbian, Bisexual, and Transgender Round Table (GLBTRT)
+Intellectual Freedom Round Table (IFRT)</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>ALA Council (NC Chapter Councilor) 2008-2013; ALA-APA Council (NC Chapter Councilor) 2008-2013; ALA Council, Co-Convener of Council Forum, 2011-2012; BARC, 2019-2021; ALA Chapter Relations Committee, 2013-2015, 2018-2020; ALA Council Orientation Committee, 2012-2014, 2019-2021, Chair, 2019, 2020; ; Committee on Diversity, 2018-2020; Library of the Future Award, Jury Member 2019, 2020; ALA Planning and Budget Assembly, 2010-2012; ALA Equality Award, Jury Member, 2005; Marshall Cavendish Excellence in Library Programming Award, Jury Member, 2004; Highsmith Library Literature Award, Chair, 2003, Jury Member 2002; ACRL Standards &amp;amp; Accreditation Committee, 2007-2009</td>
+  <td>Partnership Among South Carolina Academic Libraries (PASCAL) 2019-2022, Secretary 2019; North Carolina Library Association (NCLA), Vice-President/President-Elect, 2014-2016; NCLA Conference Committee, Marketing &amp;amp; Publications Co-Chair, 2013 &amp;amp; 2011, Exhibits Chair, 1999; NCLA Colleges &amp;amp; University Section, Board Member, 2000-2002, Chair-Elect, 2002-2004, Chair, 2004-2006; State Library of North Carolina, LSTA Advisory Board, Member, 2008-2011, Chair, 2010-2011; North Carolina Digital Heritage Center, Advisory Board Member, 2010-2013; Metrolina Library Association (MLA), Vice-President/Program Chair, 1997, President, 1998, Newsletter Editor, 2001 </td>
+  <td>Harvard Leadership Institute for Academic Librarians, 2018; Bea Kovacs Outstanding Alumni Award presented by The Library and Information Studies Alumni Association of the University of North Carolina Greensboro, 2014; NCLA Leadership Institute, Mentor, 2012; John Cotton Dana Library Public Relations Award, 2010; NCLA New Members Roundtable Young Librarian Award, 1999</td>
+  <td>I would consider chairing the 2105 North Carolina Library Association’s Biennial Conference a major accomplishment. I gathered a diverse team of librarians, many of whom had not participated in association work previously, to work on this conference and it was extremely successful.  We held the conference in a location where we had not been in 20 years; therefore, the venue was completely new to most of us.  The 3 day conference with an additional day for a pre-conference had over 1000 people in attendance and the revenue from that conference was the highest to date and helped sustain NCLA for the next biennium.  Additionally we implemented a Librarians Build Community project into the conference, which has continued at other NCLA conferences and throughout the year</td>
+  <td>Lippard, Rodney: “Community Colleges,” Running a Small Library: A How-To-Do-It Manual, edited by John, A. Moorman, ALA Neal-Schuman, Chicago, IL, 2015
+
+Fairfield-Artman, Patricia; Rodney E. Lippard, &amp;amp; Adrienne Sansom: “Bewitched … the 1960s Sitcom Revisited: A Queer Read,” Media Literacy: A Reader, edited by Donaldo Macedo &amp;amp; Shirley R. Steinburg, Peter Lang, NY 2007.
+
+Lippard, Rodney: “Metrosexual and Youth Culture” Contemporary Youth Culture Set; An International Encyclopedia, Greenwood Press, 2005.
+
+</td>
+  <td/>
+  <td>Libraries and library staff, no matter what type, are at the forefront of bringing information to the public without regard of ability or status while respecting the rights of the individual.  Council is the governing body that ensures our profession remains truthful to our core principles.  In this current era, maintaining our ethics and core principles is more important than ever.  As a Councilor-at-Large, I would aspire to making certain we do not lose sight of what our mission is and work to uphold that mission. Having served as North Carolina Chapter Councilor in the past, I gained a real appreciation of Council and felt fortunate to be a part.  I would very much appreciate the opportunity to contribute to our profession by serving on Council again.
+
+</td>
+  <td>26</td>
+</tr>
+<tr class="initial-show">
+  <td>Joseph</td>
+  <td>Logue</td>
+  <td>Library Director</td>
+  <td>Newport Public Library</td>
+  <td>Newport</td>
+  <td>RI</td>
+  <td>Public</td>
+  <td>Collins Branch Manager, Cambridge (MA) Public Library, Feb 2007-Jul 2017</td>
+  <td>Simmons College GSLIS, MS, 2005;
+University of Massachusetts Boston, BA History, 2000</td>
+  <td>PLA</td>
+  <td/>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td/>
+  <td>Massachusetts Library Association, Member, Conference Planning Committee, 2013-2017.
+
+</td>
+  <td>Outstanding Scholar, Center for European Studies (2000)</td>
+  <td/>
+  <td/>
+  <td/>
+  <td>It is my fervent hope that librarians will soon explore beyond the walls of their institutions and gain viable and quantifiable field knowledge, almost as if we were anthropologists. No matter how often we gauge the usefulness of our libraries by surveys or extract from statistics, it is incumbent upon us to work among our patrons. Too often complacency or eternal administrative tasks stymie the spark that made many librarians join the profession. Librarians often speak about partnering with community bodies, but they are often institutions of similar grade with similar problems. Libraries must break through barriers to ensure that all members of the community are heard, served, and brought under the library's limitless umbrella.</td>
+  <td>14</td>
+</tr>
+<tr class="initial-show">
+  <td>Sherry</td>
+  <td>Machones</td>
+  <td>Library System Director</td>
+  <td>Northern Waters Library Service</td>
+  <td>Ashland</td>
+  <td>WI</td>
+  <td>Library System that served public, tribal, and school libraries.</td>
+  <td>Library Director, Edgerton Public Library, 2008-2015
+
+Senior Library Assistant, Milton Public Library, 2006-2008
+
+Archivist/Executive Director Intern, Milton Historical Society, 2006-2007</td>
+  <td>University of Wisconsin-Milwaukee, MLIS, 2008; University of Wisconsin-Madison, BA Theatre and Drama, 2005; University of Wisconsin-Rock County, Associate in Arts and Sciences, 2003.</td>
+  <td>LLAMA
+ASGCLA
+PLA
+YALSA</td>
+  <td>Graphic Novel &amp;amp; Comic Round Table (GNCRT)
+Games &amp;amp; Gaming (GAMERT)
+Gay, Lesbian, Bisexual, and Transgender Round Table (GLBTRT)
+</td>
+  <td>AILA</td>
+  <td>No</td>
+  <td>Yes</td>
+  <td>ALA Chapter Councilor 2015-2020; ASGCLA President 2019-2020; LLAMA New Professionals Buddy Program Team Member 2014-2015, LLAMA Scholarship Committee Member 2012-2013; GLBTRT Executive Board Director at Large 2016-2018, GLBTRT Stonewall Book Award Committee Juror 2015-2016,  GLBTRT Membership Committee Chair 2012-2014.</td>
+  <td>Wisconsin Library Association, ALA Chapter Councilor, 2015 - present; Wisconsin Library Association, President, 2020 - 2021; Wisconsin Library Association, Executive Board Member, 2015 - present; Wisconsin Library Association, National Library Legislative Advocate, 2017 - present; Wisconsin Library Association, Library Development and Legislative Committee Member, 2017 - present; Lake Shore Library Symposium, Steering Committee Member, 2017 - 2019; Wisconsin Library Association, Chair of the Wisconsin Small Library Section, 2014-2016; Wisconsin Library Association, Director of the Wisconsin Small Library Section, 2012-2014;</td>
+  <td>American Library Association, LLAMA, Emerging Leader Sponsorship, 2011-2012; TRIO Distinguished Alumni Award, University of Wisconsin Rock County, 2012. Alumni Awareness Award, University of Wisconsin Rock County, 2008.</td>
+  <td>I am most proud of my work to improve service and access for libraries and archives. I have particularly focused on small and rural entities. As the Director of the Edgerton Public Library, I fought for budget increases to keep the library open and changed the direction of the library into a thriving community center. Currently, as a System Director, I am fighting to keep open struggling tribal and small libraries that have no support from their municipality. I have received numerous LSTA grants to enhance technology-related library services, access, lifelong learning, and youth services. Other major accomplishments include being chosen as an ALA Emerging Leader and my appointment to the ALA Stonewall Book Committee.</td>
+  <td/>
+  <td/>
+  <td>Advocating for inclusive services has been a major focus for me since becoming a system director and a consultant. I’ve worked in libraries since high school and have seen so many populations that are chronically underserved. While my duties and job titles have changed over my career advocating for services is an important aspect of what I have always done as a librarian. Serving as ASCLA President, I worked with the board of directors, members, and staff to take our national advocation of service and those that serve to the local level. Since ASGCLA has been formally dissolved this year, I would be honored to represent all of your voices as I continue ASGCLA’s legacy of keeping inclusivity and access at the forefront of Council and ALA policy.</td>
+  <td>12</td>
+</tr>
+<tr class="initial-show">
+  <td>Mike L. </td>
+  <td>Marlin</td>
+  <td>Director</td>
+  <td>California Braille and Talking Book Library</td>
+  <td>Sacramento</td>
+  <td>CA</td>
+  <td>State Government</td>
+  <td>Adult Services Outreach Librarian, Pima County Public Library, 2005-2007
+
+Reference/Collection Development Librarian, Washington Talking Book &amp;amp; Braille Library, 2004-2005
+
+Adaptive Technology Librarian, Seattle Public Library, 2001</td>
+  <td>University of Washington,MLIS,1992; Brown University,B.A. Semiotics and Communications,1987</td>
+  <td>ASGCLA
+LITA
+RUSA</td>
+  <td>Sustainability (SustainRT)
+Library Support Staff Interests (LSSIRT)
+New Members Round Table (NMRT)
+Social Responsibilities Round Table (SRRT)
+Gay, Lesbian, Bisexual, and Transgender Round Table (GLBTRT)
+Intellectual Freedom Round Table (IFRT)
+</td>
+  <td>AILA
+APALA
+BCALA
+REFORMA
+</td>
+  <td>No</td>
+  <td>No</td>
+  <td>ALA Executive Board, Member, 2015-18, Spring 2014; ALA Councilor-at-Large, 2018-21, 2014-17, 2011-14; ALA Resolutions Committee, Member, 2018-2022 (Chair, 2019-2021); ALA International Relations Committee, Member, 2020-2022; ALA Conference Committee, Member, 2018-2020; ALA Equity, Diversity, and Inclusion Working Group, Member, 2016-2019; Budget Analysis and Review Committee, Executive Board  Representative, 2016-2018; ALA Conference Accessibility Task Force, Co-chair, 2015-2017; ALA Task Force on Equity, Diversity, and Inclusion, Member, 2014-2016; ALA Committee on Membership Meetings, Member, 2014-2016 (Chair, 2014-2015; Task Force on Electronic Communications for the ALA Council, Member, 2014; ALA Digital Content Working Group, member, Digital Media Subcommittee, 2014-2016, Accessibility Subcommittee, 2012-2014; ALA Committee on Diversity member, 2013-2015; ALA/ASCLA Representative to IFLA Libraries Serving People with Print Disabilities (LPD) Section, 2017-20221, 2013-2017; ASGCLA Board of Directors, Director for Underserved Populations, 2018-2022; ASCLA Awards Committee member, 2013-2015; ASCLA WorkingTeamMember,LC/NLS Project to Review and Revise the Standards and Guidelines of Service for the Library of Congress Network of Libraries for the Blind and Physically Handicapped,2010-2011; ASCLA Member,AdHoc Electronic Resources Committee, 2007-2008; ALA/ASCLA Secretary, Accessibility Assembly, 2007–2010; ASCLA Library Services to Special Populations Section: Secretary, Library Service to People with Visual or Physical Disabilities Forum, 2007–2010; SRRT Action Council  Member, 2007-2013, Coordinator, 2010-2011</td>
+  <td>California Library Association, Member, Intellectual Freedom Committee, 2010-2013; California Library Association, Member, 2008 - present  (Emerging Technology, Management, Disability, Collection Development Interest Groups)</td>
+  <td>Chaird Bard, Caer Pugetia, British Druid Order, 2003</td>
+  <td>Advisor, Internet Archive Library Digitization Project, 2017-2019; Institutional Liaison to California Council of the Blind, National Federation of the Blind of California, Blinded Veterans Association of California
+• Member, Reading Rights Coalition, 2009 – present
+• Mentor, Business Advisory Council, Sensory Access Foundation (Sunnyvale, CA), 2008-12
+• Librarian/Fundraising Liaison for Belize Foundation for Research and Environmental Education (BFREE), 1998-2008
+o Pima County Public Library Liaison to Tucson Mayoral Commission on Disability Issues, 2005-07
+• Vice President, Patron Advisory Council, Washington Talking Book &amp;amp; Braille Library, 2002-04
+• Co-founder/editor/contributor, The Tentacle: Sounding the Depths of Northwest Creative Music (print and online Seattle magazine), 1997-2002
+</td>
+  <td>Author: "From Lyon to Leipzig: a Canine Librarian’s Journey." California State Library Foundation Bulletin. September/October, 2015.
+
+Author: "Promoting Access for Blind and Visually Impaired Patrons: An IFLA manifesto and its strategic importance for American libraries." American Libraries online, November 6, 2014.
+
+Author: "The Joys and Challenges of a Differently Abled Librarian." Library Worklife, 5(9), 2008.
+</td>
+  <td>ALA-APA: https://ala-apa.org/newsletter/2008/09/14/the-joys-and-challenges-of-a-differently-abled-librarian/; BTBL newsletter http://www.btbl.ca.gov/publications/btblNews/; ASCLA Think Accessible ToolKit: https://www.asgcladirect.org/wp-content/uploads/2017/06/thinkaccessible.pdf; Belize Foundation for Research and Environmental Education: http://www.bfreebz.org
+
+</td>
+  <td>I am invested in ALA, and am proud of the actions that have transpired in which I played both a direct and indirect role since I hopped on the governance train 10 years ago. I continue to represent disability librarianship (among all other things library) and feel it is vital to have accessibility and universal design issues represented on Council. In addition to immersion in domestic library issues, I am honored to participate in sectors of international librarianship, striving to represent ALA members and policies, sharing ideas across borders. Philosophically, I will fight for decisions to be inclusive, incorporate diversity, accessibility, respect for opinions of others, progressive ideals, and rationality. P.S. guide dog Vivaldi Canine Librarian approves this message!</td>
+  <td>20</td>
+</tr>
+<tr class="initial-show">
+  <td>Lavoris</td>
+  <td>Martin</td>
+  <td>Associate Library/Director of Library Technical Service</td>
+  <td>University of Arkansas at Pine Bluff</td>
+  <td>Pine Bluff</td>
+  <td>AR</td>
+  <td>Academic</td>
+  <td>Coordinator of Library Technical Services and System Administration, University of Arkansas at Pine Bluff, March 17, 2000
+
+Adjunct Faculty, Southeast Arkansas College, January 2008
+
+Academic Library Technician, University of Arkansas at Little Rock, July 5, 1995</td>
+  <td>University of North Texas, Master of Science in Library Science, 2015; University of Arkansas at Little Rock, Master of Education Learning Systems Technology, 2006;  University of Arkansas at Little Rock, Bachelor of Arts in Art, 1994; Graduate Certificate University of North Texas, Digital Content Management, Advance Management in Libraries and Information Agency, 2015; </td>
+  <td/>
+  <td>Sustainability (SustainRT)
+Library Research (LRRT)
+Film &amp;amp; Media Round Table (FMRT)</td>
+  <td>BCALA</td>
+  <td>No</td>
+  <td>No</td>
+  <td>ALA Annual Conference Committee Associate 2018-2020; FMRT 2018-2019 member, chair of 2019 GALA; NMRT, member, NMRT Professional Development Attendance Award Committee chair; Information Technology Advisory Committee member</td>
+  <td>ArkLink vice president, 2019-2020; ArkLink President, 2020-present; Arkansas Library Association Legislative Committee, 2020-present, University of Arkansas at Pine Bluff Library Faculty Staff Senate, 2013-present</td>
+  <td>I AM ALA, 2018; CHancellor Customer Service Award, 2019</td>
+  <td>University assist in the planning, develop, implementation of the university first online courses. Have been instrumental in the selection and implementation of the library integrated systems and served as project manager for the implementation of the library cloud based integrated system Alma and Primo the library’s Discovery and Delivery system. Project manager for the library wireless services and proxy server implementation and upgrade allowing user off campus access to library resources. Has continue to implement and develop technology innovations within the library including interactive smart tables, tvtabler, video conferencing systems, laptop checkout, self-checkout system, and has increase the library computer capacity from 18 to over 100 computers and library electronic resources. In addition to independent library projects have successfully worked as part of teams for library projects ranging from designing library guides, accreditation resource guide, information literacy, managing library webpage, and how to guides for using library resources.
+
+</td>
+  <td>Martin, L. (2020). Cloud Computing, Smart Technology, and Library Automation. In B. Holland (Ed.), Emerging Trends and Impacts of the Internet of Things in Libraries. Part of the Advances in Library and Information Science Book Series (pp. 105-123). Hershey, PA: IGI Global. doi: 10.4018/978-1-7998-4742-7
+
+Martin, L. (2019). Academic libraries Embracing Technology with a Purpose. 18th Proceeding of the Brick &amp;amp; Click Library Conference, 57-62. http://eric.ed.gov/PDFS/ED590389.pdf Martin, L. (2018). "Information Literacy: Literacy Across STEM Areas". Georgia International Conference on Information Literacy. 79. https://digitalcommons.georgiasouthern.edu/gaintlit/2018/2018/79
+
+Martin, L. (2020). Using Games to Engage Students in One Shot Library Instruction. Arkansas Libraries, Fall-Winter, 76(3-4), 24-25.
+</td>
+  <td>https://www.linkedin.com/in/lavoris-martin-23694666/</td>
+  <td>Providing all individuals with an opportunity to serve the organization regardless of race or ethnicity. The opportunity for more professional development, customer service, and best practices and training for serving as an officer or councilors.
+
+</td>
+  <td>5</td>
+</tr>
+<tr class="initial-show">
+  <td>Susan J. </td>
+  <td>Martin</td>
+  <td>Chair, Collection Development and Management</td>
+  <td>Middle Tennessee State University</td>
+  <td>Murfreesboro</td>
+  <td>TN</td>
+  <td>Academic</td>
+  <td>Head of Acquisitions, University of Chicago Library, 2016-2020
+
+Acquisitions Librarian, Texas Woman's University, 2014-2016
+
+Circulation Librarian, St. Paul's School, 2002-2004</td>
+  <td>Simmons College (now Simmons University), M.S. in Library and Information Science, 1997
+Mount Holyoke College, A.B. French and American Studies, 1991</td>
+  <td>ALCTS</td>
+  <td/>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>Core Interest Groups Working Group (IGWG), June - August 2020
+ALCTS, AS/CMS Continuing Education Committee, Co-Chair 2019-present
+ACLTS, Cataloging Norms Interest Group, Co-Vice Chair, 2019-2020 and Co-Chair 2020-2021
+ALCTS, Creative Ideas in Technical Services, Vice-Chair, 2020-2021
+ACRL WessWeb French Studies editor 2000-2001</td>
+  <td/>
+  <td/>
+  <td>All of my accomplishments have been centered around the work I have done as part of my employment, which include, but are not limited to improving and streamlining workflows, creating and implementing staff development plans, evaluating resources and services in order to be a good steward of the institutions' funds, and collaborating with colleagues internally and externally, librarian and vendor to improve services and foster an environment of understanding and respect. </td>
+  <td>Martin, Susan J. and Christie Thomas. “One library’s collaborative approach to simplifying the ordering process with spreadsheets” Let’s Get Technical, Against the Grain. November 2017.
+
+Schuster, David W. and Susan J. Martin. Open Access, Open Access, how does your catalog grow? With selection, access, and usage all in a virtual row. Proceedings of the 2016 Charleston Library Conference. October 2017. DOI: 10.5703/1288284316458.
+
+Martin, Susan J., Pamela D. Ward, and Brittney L. Washington. Back to the Future - re-examining the need for shelf-ready processes in the e-book environment. Proceedings of the 2015 Charleston Library Conference. October 2016. DOI: 10.5703/1288284316243.
+</td>
+  <td/>
+  <td>My professional aspirations and concerns center around the recruitment, retention, and development of library staff. Professional organizations are a crucial tool in that process. How does the profession reach outside its proverbial box to other industries whose skills are compatible and desired in librarianship?  How can ALA assist in that effort through recruitment and marketing tools, training, and development pathways? Additionally, how can ALA remove or mitigate barriers that potential and current members have, such as membership costs, organizational size, structure, and culture? How can ALA assist libraries create a sustainable future for their staff?  I do not purport to have the answers to these questions. But, if selected as councilor-at-large, I hope to be able to work on these areas and create sustainable, inclusive solutions. </td>
+  <td>10</td>
+</tr>
+<tr class="initial-show">
+  <td>Priscilla</td>
+  <td>Martínez</td>
+  <td>Director of Community Engagement</td>
+  <td>Senate of Virginia</td>
+  <td>Leesburg</td>
+  <td>VA</td>
+  <td>Public</td>
+  <td/>
+  <td/>
+  <td/>
+  <td/>
+  <td>REFORMA</td>
+  <td>No</td>
+  <td>No</td>
+  <td/>
+  <td>Trustee at-Large, Loudoun County Public Library Board
+Purcellville Library Advisory Board, president, 2013-2017
+Purcellville Library Advisory Board, member, 2012-2017</td>
+  <td>Commending Resolution, Commonwealth of Virginia General Assembly, 2020
+Loudoun Falls for Social Justice award, 2018
+Commending Resolution, US House of Representatives, 2017
+Interfaith Council of Metropolitan Washington BridgeBuilder Award, 2017
+Boy Scouts of America District Award of Merit, 2012</td>
+  <td>Priscilla has over 30 years of non-profit leadership, governance, and community organizing experience focusing on civic engagement, interfaith bridge-building, and youth leadership development. She focuses on equity and inclusion while establishing impactful collaborations and bridging cultural and generational distances.
+While president of her library advisory board, Priscilla fostered relationships within the board and with the public, which helped build a supportive and engaging library culture that welcomes and includes patrons from typically underrepresented demographics. As elected chair of Boy Scout's largest district, Priscilla led over 2,000 adult volunteers and over 5,000 youth in programming, fundraising, inclusion, and community services. During her tenure, she assembled an executive committee whose diversity of cultures, ethnicities, and religions informed their leadership and cultivated intentionally inclusive programs.
+To date, Priscilla has served on over 20 non-profit boards and community service commissions. She currently serves on the board of Interfaith Power &amp;amp; Light, volunteers for the Interfaith Council of Metropolitan Washington and the Muslim-Jewish Advisory Council, and is a lifetime member of the National Association for the Advancement of Colored People.
+</td>
+  <td>"Educating the Muslims of America," ed. Dr. Yvonne Haddad (Oxford University Press), 2009.
+
+</td>
+  <td>https://www.facebook.com/priscillamartinez.va/</td>
+  <td>As a child, the library was my favorite after-school hangout. As an adult, I continue to have an ever-present stack of books at my bedside and downloaded to my phone, waiting to take me on my next adventure. And as a parent, I've ensured that my children (now teens thru adults) have grown up with the same attachment to our libraries. Now with my over 30 years of experience collaborating with non-profit organizations in the areas of management, development, finance, and recruitment, I hope to help bridge the gap in library service to historically marginalized or under-represented communities. Wih the role of libraries evolving quickly over the years, I am confident that we will continue to see expansion of the ways that our libraries serve our communities. I hope to have the opportunity to contribute to the visioning and implementation of new and innovative approaches to further knowledge and exploration</td>
+  <td>1</td>
+</tr>
+<tr class="initial-show">
+  <td>Jill M. </td>
+  <td>O'Neill</td>
+  <td>Library Director</td>
+  <td>Clinton Community College</td>
+  <td>Clinton</td>
+  <td>IA</td>
+  <td>Academic</td>
+  <td>Public Services Librarian, Assistant Director, Interim Library Director - Clinton Public Library, Clinton IA.
+
+</td>
+  <td>University of Iowa:
+Masters in Strategic Communications
+2020 - in progress
+University of Iowa:
+Masters in Library and Information Science
+2018
+Aurora University
+BA
+English Language and Literature
+2008
+</td>
+  <td>ACRL
+PLA
+LLAMA
+</td>
+  <td>Sustainability (SustainRT)
+Library Instruction Round Table (LIRT)
+Library Support Staff Interests (LSSIRT)
+Social Responsibilities Round Table (SRRT)
+Intellectual Freedom Round Table (IFRT)
+</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>• American Library Association member (2017 - present)
+• Public Library Association member (2018 - present)
+• PLA Family Engagement Task Force (2019 - present)
+• Association of College and Research Libraries (ACRL) member (2019 - present)
+• LLAMA member (2018 - present)
+</td>
+  <td>• Iowa Library Association member (2018 - present)
+• ILA Intellectual Freedom Committee (2018 - present)
+• ILA's Public Library Forum Treasurer (2019 - present)
+• ILA ACRL Electronic Communications Committee (2019 - present)
+• ILA Small and Rural Library Association member (2018 - present)
+</td>
+  <td/>
+  <td>As someone who is dedicated to reducing barriers for patrons, I started the dialogue for going fine-free for my library, as well as the consortium my library was in. I did the research and each library took the information and statistics back to their individual boards and I am very pleased to share that each one of us became fine-free for juveniles within our consortium. I don't believe this would have happened without my guidance. To date, I consider this to be one of the best things I've done in my life. I want to continue to look for ways to serve my community and focus on decreasing barriers, as well as evolving to fit the needs of the patrons in my community. </td>
+  <td/>
+  <td/>
+  <td>I possess a passion and enthusiasm for libraries and a desire to continue to make libraries better and all-inclusive for our communities and patrons. I am an advocate for life-long learning and decreasing as many barriers as possible. I have a huge drive to work with patrons of all ages, skill-sets, and abilities and help them succeed and thrive. I love the library world and want to be apart of its growth and future.  I am an active member of the Iowa Library Association, the Public Library Association, and the American Library Association and want to continue to better the services we provide our community.</td>
+  <td>3</td>
+</tr>
+<tr class="initial-show">
+  <td>Madeline</td>
+  <td>Peña</td>
+  <td>Digital Content Manager</td>
+  <td>Los Angeles Public Library</td>
+  <td>Los Angeles</td>
+  <td>CA</td>
+  <td>Public</td>
+  <td>Multilingual Collections Manager, Los Angeles Public Library, 2016-2017
+
+Bilingual Social Media Librarian, Los Angeles Public Library, 2013-2016</td>
+  <td>San Jose State University, MLIS, 2012
+UNAPEC, BS Marketing, 2005 (Dominican Republic)
+UNPHU, AA Graphic Design, 2000 (Dominican Republic)</td>
+  <td>ALSC</td>
+  <td/>
+  <td>REFORMA</td>
+  <td>No</td>
+  <td>No</td>
+  <td/>
+  <td>REFORMA
+• REFORMA National Conference VII Steering Committee, 2020-2022
+• Technology Committee Co-Chair, Board of Directors 2020-2022
+• Inmmediate Past President, Executive Committee 2019-2020
+• REFORMA National President, Executive Committee 2018-2019
+• Vice-President/President Elect, Executive Committee 2017-2018
+• Chapter Representative, Executive Committe 2015-2017
+• Los Angeles Chapter President, Board of Directors 2014-2015
+• REFORMA National Conference V Steering Committee, 2014-2015
+JCLC
+• JCLC 2022 Steering Committee, 2020-2023
+California Library Association
+• Chair, Technology Interest Group, 2013-2014
+</td>
+  <td>REFORMA National Dr. Arnulfo D. Trejo Librarian of the Year Award, 2015</td>
+  <td/>
+  <td/>
+  <td/>
+  <td>If elected I will contribute to the conversations and actions around ALA’s Strategic Direction on Equity, Diversity, and Inclusion, and will contribute to efforts to transform and revitalize our organization as it faces many challenges and as it leads our members during these times of uncertainty.</td>
+  <td>9</td>
+</tr>
+<tr class="initial-show">
+  <td>Edwin</td>
+  <td>Rodarte</td>
+  <td>Senior Librarian of Emerging Technologies</td>
+  <td>Los Angeles Public Library</td>
+  <td>Los Angeles</td>
+  <td>CA</td>
+  <td>Public</td>
+  <td>Adult Services Librarian, Los Angeles Public Library, March 2014 - October 2018</td>
+  <td>San Jose State University, MLIS, 2010; California State University Fullerton, BA Spanish and BS Human Services, 2007.
+
+</td>
+  <td/>
+  <td/>
+  <td>REFORMA</td>
+  <td>No</td>
+  <td>No</td>
+  <td>REFORMA Technology Committee Chair 2018-2020; ALSC and REFORMA's Pura Belpré Award Selection Committee 2018; YALSA Popular Paperbacks for Young Adults Selection Committee 2017;  YALSA Best Fiction for Young Adults Selection Committee 2016 and 2015.
+
+</td>
+  <td>California Library Association's Latino Services Interest Group Co-Chair 2018-2020</td>
+  <td>REFORMA Librarian of the Year Award 2019</td>
+  <td/>
+  <td/>
+  <td/>
+  <td>If elected, I promise to uphold ALA's Policies and Procedures as well as be an active participant within the Council. I am interested in ensuring equitable access to resources for ethnic affiliates and roundtables. Additionally, I bring an open mind and relentless energy for the betterment of our profession.</td>
+  <td>10</td>
+</tr>
+<tr class="initial-show">
+  <td>Amanda</td>
+  <td>Roper</td>
+  <td>Assistant Librarian 1</td>
+  <td>Chattanooga State Community College</td>
+  <td>Chattanooga</td>
+  <td>TN</td>
+  <td>Academic</td>
+  <td>Resource Sharing and Library Communications Specialist, Brenau University, 8/24/2004 - 10/15/2018</td>
+  <td>Valdosta State University, MLIS, December 2018; Brenau University, BA English Language and Literature, 2004. </td>
+  <td>ACRL
+RUSA
+</td>
+  <td>Social Responsibilities Round Table (SRRT)
+Gay, Lesbian, Bisexual, and Transgender Round Table (GLBTRT)
+</td>
+  <td/>
+  <td>No</td>
+  <td>Yes</td>
+  <td>SSRT (member 2017 - present), Rainbow Roundtable (member 2017 - present)</td>
+  <td>ACRL, Community and Junior College Libraries Section, Scholarly Research Committee, 2020-2022. Tennessee Library Association, Vice-Chair, Access and Patron Services Round Table, 2020; Georgia Library Association Vice President of Marketing and Branding, 2019; Georgia Library Association, Chair, Paraprofessional Division, 2018. Student of Library and Information Science, Valdosta State University, Communications Officer, 2018; Georgia Library Association, Vice-Chair, Paraprofessional Division, 2017.
+
+</td>
+  <td>American Library Association Emerging Leader, class of 2020; Reference and User Services Association (RUSA) Emerging Leader sponsorship, 2020; George Gaumond Award, Valdosta State University, 2019; Georgia Library Association Hubbard Scholarship, 2017; Georgia Library Association Paraprofessional Grant, 2011</td>
+  <td>I am most proud of the fun I've had with students and faculty through library outreach and instruction. I've created zine workshops, zombie in the library information literacy games, pop-up library collaborations on campus, and I'm currently creating a family study room for our returning adult students. Co-presenter, Paraprofessional Development: Growing Through Mentorship and the Georgia Library Association, Georgia Libraries Conference, 4 October 2018; Co-presenter, Bring your brains: Information Literacy and Zombies in the Library!, Georgia Library Association Carterette Webinar, August 2018; Presenter, But I want to do it all! Social media strategies for the small academic library, Library Marketing and Communications Conference, November 2017; Co-presenter, Fantastic student employees and where to find them: Using gamification and the world of Harry Potter to engage student employees Georgia COMO, October 2016; Co-presenter, Maximizing outreach without maxing out: No-to-low cost ways of getting your library’s message out there, Georgia Library Association Carterette Webinar, August 2016.</td>
+  <td>“(Re)Connecting Adult Students to the Community College Library: Developing a Social Justice and Equity-oriented Liaising Program to Support Returning Adult Students.” In Underserved Patrons in University Libraries: Assisting Students Facing Trauma, Abuse, and Discrimination, ed. by Julia Skinner and Melissa Gross (2021).</td>
+  <td>Linkedin https://www.linkedin.com/in/amanda-roper-8ba65bb8/
+Twitter https://twitter.com/figthistlebooks
+</td>
+  <td>In my work as a librarian, I value social justice praxis, critical pedagogy, and a work environment with a leadership structure grounded in equity.  As an Emerging Leader at Midwinter 2020, I attended multiple council sessions to familiarize myself with ALA's leadership and council structure. I was pleased to see many sessions and ALA members and councilors discussing social justice and equity. However, I was troubled by a lack of transparency within the organization. In order to truly embrace social justice, active dialogue among leadership, council, members, and future members must be encouraged. This means asking hard questions and expecting forthright answers. As a councilor-at-large, I would prioritize empowering council, advocate for the abolishment of barriers that may limit or prevent member participation, and seek to create an environmentally sustainable and more equitable ALA for our must vulnerable libraries and members.
+
+</td>
+  <td>4</td>
+</tr>
+<tr class="initial-show">
+  <td>Suzanne L. </td>
+  <td> Sager</td>
+  <td>Cataloging &amp;amp; eAccess Manager</td>
+  <td>Portland State University</td>
+  <td>Portland</td>
+  <td>OR</td>
+  <td>Academic</td>
+  <td/>
+  <td>University of Illinois at Urbana-Champaign, MLIS, 2005; Portland State University, BA History with a minor in International Studies, 2000; Clackamas Community College, AS Accounting, 1984</td>
+  <td>ALCTS</td>
+  <td>Library Support Staff Interests (LSSIRT)
+Graphic Novels &amp;amp; Comics Round Table (GNCRT)</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>Oregon Chaper Councilor, 2007-2010, 2013-2016; Chapter Relations Committee, 2014-2016; Status of Library Employees Committee, 2010-2011; Council Resolutions Committee, 2010</td>
+  <td>Oregon Library Association, Chair, Conference Communication, 2008-2014; Coordinator, Conference Print Program, 2014-2017; Chair-elect/Chair/Past-Chair, Support Staff Division, 2005-2008; Financial Committee, 2014-Present; Leadership Committee, 2018-Present; Treasurer, 2001-2005; Member-at-Large, Support Staff Division, 2003-2005; Conference Committee, Support Staff Division, 2001, 2003</td>
+  <td/>
+  <td/>
+  <td>Author: "Rising Number of Librarians Covered by Collective Bargaining Agreements: A Report from the 2010 Librarian Salary Survey Supplemental Questions," Library Worklife, December 2010.
+
+Author: "Merit Pay Most Often Used in Compensation for Public and Academic Librarians," Library Worklife, September 2011.
+Author: "Library Support Staff Today and how it has changed," Oregon Library Association Quarterly, Fall 2014, 20:3.</td>
+  <td/>
+  <td>I served as the Oregon Chapter Council from 2007-2010 and again from 2013-2016.  I learned so much from the experience and would really love the opportunity to serve as a Councilor-at-Large.  I have worked in the library at Portland State University for over 34 years.  One of the things I love about working in a library is that it is constantly changing and evolving.  There are so many opportunities to learn and be involved in the library community.  I have been involved in both the Oregon Library Association and the American Library Association.  Although I work in an academic library, I was fortunate to be able to serve as the President of the Estacada Public Library Board.  I am also interested in the possible creation of a new core division which would include ALCTS, LITA, and LLAMA.</td>
+  <td>18</td>
+</tr>
+<tr class="initial-show">
+  <td>Jules</td>
+  <td>Shore</td>
+  <td>Systems Librarian</td>
+  <td>Shore Library</td>
+  <td>Rockville</td>
+  <td>MD</td>
+  <td>Special</td>
+  <td>Supervisory Technical Information Specialist, National Library of Medicine, 2001 - current
+
+Serials Librarian, Tampa-Hillsborough County Public Library System, 2000 - 2001
+
+Weather Forecaster, US Air Force, 1985 - 1997</td>
+  <td>University of South Florida, MLIS, 2000;
+Stockton State College (Pomona, NJ), BS Oceanography, 1984</td>
+  <td>ASGCLA
+RUSA
+</td>
+  <td>Sustainability (SustainRT)
+Gay, Lesbian, Bisexual, and Transgender Round Table (GLBTRT)</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>ALA Councilor-at-large 2016-2019; ALA Resolutions committee, member, 2013-2017; ALA Committee on Organization, member, 2019-2021; ASCGLA Mentorship program, mentor, 2019-2020; ASCGLA Nomination committee, chair,  2019-2020.
+
+</td>
+  <td/>
+  <td/>
+  <td>Moved 'Resolution on Library Service for Children in Detention' at Annual 2019. (2018-2019 ALA CD #52) The resolution passed.</td>
+  <td/>
+  <td/>
+  <td>Most people know me for "Anonymous asks" in the Facebook "Library Think Tank" group. I provide this service because I feel everybody needs a safe space to ask questions without concern for possible retaliation from their workplace. As an older, white male, I know my privilege. I've accepted the responsibility of being a voice for the voiceless; of making sure that everyone had a seat at the table when decisions are being made.
+I've been on council and in committees long enough to know how ALA governance works. Elect me and I'll be your voice in council.
+</td>
+  <td>8</td>
+</tr>
+<tr class="initial-show">
+  <td>Natalie</td>
+  <td>Starosta</td>
+  <td>Library Director</td>
+  <td>North Riverside Public Library District</td>
+  <td>North Riverside</td>
+  <td>IL</td>
+  <td>Public</td>
+  <td>Library Director, River Valley District Library, June 2017-February 2018
+
+Library Director, Dorr Township Library, October 2013 - April 2017
+
+Library Director, Hopkins District Library, August 2011- April 2017</td>
+  <td>Degrees: University of Illinois, MSLIS, 2010; University of Kansas, MA Slavic Languages &amp;amp; Literature, 2009; Grand Valley State University, BAs German Studies and Russian Studies; 2007.
+Certifications: Certified Public Library Administrator (CPLA) - applied following course completion November 2020.</td>
+  <td>PLA</td>
+  <td>Sustainability (SustainRT)
+Learning RT (LearnRT, formerly CLENERT)</td>
+  <td/>
+  <td>No</td>
+  <td>Yes</td>
+  <td>ALA Learning Round Table - Elected Board Member 2017- current; ALA Learning Round Table - Member of Emerging Leaders Committee2017- current; ALA Learning Round Table - Member of conference planning committee 2017-current, ALA  Demco New Leaders Grant Committee 2016-2018.PLA Continuing Education Advisory Group, member, 2017-current.</td>
+  <td>Allegan County Library Association, President, 2015-2017; Library of Michigan QSAC Revision Committee, Class 2 Library Representative, 2013 and 2016; </td>
+  <td>2012 Up and Coming Librarian Award; 2012 Citation of Library Excellence from the Library of Michigan for Hopkins; 2013 Demco New Leaders Travel Grant; 2014 Citation of Excellence from the Library of Michigan for Dorr; 2015 Pat Carterette Professional Development Award; 2015 ALA Emerging Leader; 2016 Lion's Club Person of the Year (Dorr, MI); </td>
+  <td>I believe that all of the accomplishments that I am most proud of are tied to those around me. I'm exceptionally proud of those staff/co-workers who are Emerging Leaders, win grants and awards and I think one of the most worthwhile parts of my life is writing nominations and applications. I believe that success is something that should be shared and see shared success as a great accomplishment. </td>
+  <td>Natalie Bazan Starosta. "Grants: Finding, Writing, and Follow Through," Genealogy and the Librarian: Perspectives on Research, Instruction, Outreach, 2018.</td>
+  <td>Please find me on Linkedin for more information: https://www.linkedin.com/in/natalieabazan/</td>
+  <td>I believe that we need to focus on creating a culture of learning within our library staff. I understand that many libraries lack the funding to attend large national or even state conferences however the limited number of applications for grant funds to attend these conferences is concerning and seems to stem from a lack of confidence or knowledge. I would like to see small and rural libraries provided extra support to gain the education that those librarians and library staff need to be effective leaders in this time of change. In order to help them become more effective agents of change, I would like to see additional education in equity, diversity and inclusion training targeted toward small and rural libraries as well.</td>
+  <td>9</td>
+</tr>
+<tr class="initial-show">
+  <td>Eric D. </td>
+  <td>Suess</td>
+  <td>Director</td>
+  <td>Marshall Public Library</td>
+  <td>Pocatello</td>
+  <td>ID</td>
+  <td>Public</td>
+  <td>Director, Commerce Township (MI) Community Library 2005-2010
+
+Director, Wayne (NJ) Public Library 2004-5
+
+Director, Fraser (MI) Public Library 1996-2004</td>
+  <td>University of Michigan MLIS 1987; University of Notre Dame BA Government/English 1983</td>
+  <td>ALSC
+ASGCLA
+LITA
+PLA
+LLAMA
+YALSA
+</td>
+  <td>Games &amp;amp; Gaming (GAMERT)
+Graphic Novels &amp;amp; Comics Round Table (GNCRT)
+International Relations (IRRT)
+Intellectual Freedom Round Table (IFRT)
+</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>ALA Council 2008-11, 2012-21; ALA Committee on Legislation 2008-09, 2018-22, CoL Subcommittee on Grassroots Advocacy 2008-2011 (Chair 2009-10), 2019-22; ALA Committee on Organization 2015-2019, ALA Awards Committee 2013-15 (Chair 2014-15); ALA Constitution and Bylaws Committee 2012-14,  ACRL LPSS Publications Committee 1988-90; ALCTS Esther J. Piercey Award Jury 1989-90; LAMA FRFDS Program Committee 2003-05; LAMA SASS Acquisitions Systems Committee 1989-91; LITA Vendor User Group 1994-95; IFRT Executive Committee 2006-08, 2010-15 (Chair 2013-14); IFRT Organization and Bylaws Committee 2005-09; IRRT Nominating Committee (Chair) 1988-89; ALA Council representative to the Planning and Budget Assembly 2015-17
+
+</td>
+  <td>Michigan Library Association: IFC Chair 2001-2, Membership Committee Chair 2006-7. Idaho Library Association: IFC Chair 2011-2015
+
+</td>
+  <td/>
+  <td>In Michigan I helped create a community’s first library. Much attention was focused on having strong policies which support intellectual freedom and incorporated the Library Bill of Rights. While I have moved on, the library continues to grow and thrive. I have also been elected as a delegate to OCLC's America's Regional Council/Global Council, representing mid-sized public libraries outside of major metropolitan areas.</td>
+  <td/>
+  <td/>
+  <td>ALA is at a crucial point in its history. Significant change is needed. As a current 4th-term Councilor At-large, I can speak from a position of strength and experience. While I have been in public libraries since 1996, I have also worked in academic libraries and for a vendor. This gives me a broad perspective. I actively advocate for school libraries. As an at-large councilor, I have no specific constituency, so I have tweeted (@Lirath) Council action minutes in real time so the general membership can see what decisions and discussion is made on their behalf. I take the role of listening to the membership very seriously. As an experienced councilor, I also routinely mentor new council members. I am a consistent donor to the Spectrum Scholarship Fund and a proud member of the Freedom to Read Foundation.  I would appreciate your support</td>
+  <td>32</td>
+</tr>
+<tr class="initial-show">
+  <td>Iris</td>
+  <td>Taylor</td>
+  <td>Senior Cataloging Specialist</td>
+  <td>The Library of Congress</td>
+  <td>Washington</td>
+  <td>DC</td>
+  <td>Federal Government</td>
+  <td>The Library of Congress, Geography and Map Division, Washington, DC Senior Cataloging Specialist September 15, 2007 to Present
+
+The Library of Congress, Geography and Map Division, Washington, DC Cartographic Materials Cataloger September 2002 to September 2007
+
+LIBRARY OF CONGRESS LEADERSHIP DEVELOPMENT PROGRAM, The Library of Congress, Geography and Map Division, Washington, DC, Leadership Development Specialist, August 2005 to August 2006</td>
+  <td>The Catholic University of America, Washington, DC, Master of Library and Information Studies, May 2003;
+Virginia Commonwealth University, Richmond, VA, Bachelor of Science in Criminal Justice, Sociology, June 1998</td>
+  <td>ALCTS</td>
+  <td>Map and Geospatial Information (MAGIRT)</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>Round Table/Committee Offices (specify role: member, chair, liaison, etc.): MAGIRT-Chair 2019-2020, member for over 12 years; ALCTS member</td>
+  <td>Washington Map Society, Board of Directors
+Daniel A.P. Murray African American Cultural Association of the Library of Congress (Director-at-Large, Treasurer, Program Chair) Team Strategist, Bench by the Road Project: Congress Woman, Eleanor Holmes-Norton Office, Librarian’s Office, and Tony Morrison Society
+Blacks In Government (BIG) (Treasurer, Events Program)
+District 27 Toastmasters, Director, Program Quality Director, Club Growth Director, Conference Chair, District Finance Manager, Area Director, Club President, Club Vice President Education, Club Secretary, and Club Treasurer</td>
+  <td>Toastmaster of the Year Award; Team Member of the Year
+Tea</td>
+  <td>Instrumental in having the placement of the 21st Bench by the Road placed at the Library of Congress by The Toni Morrison Society on April 28, 2017.
+Leadership Development: Assignment: Executive Office of the President, Research and Library Services (White House Library- Reference Desk)
+</td>
+  <td>Published in baseline and ALCTS Newsletter
+
+</td>
+  <td/>
+  <td>First, our major concern is staying safe and healthy. The Coronavirus pandemic is on everyone’s mind. Along with other institutions, libraries have challenges to overcome. Such as, how do we continue to serve books, resources, and collection materials to people? How will libraries survive during this pandemic?
+There is a lot of uncertainty in the world today as we face a myriad of challenges in libraries and fight for justice and equality during this pandemic. Libraries need to think inside the box, but using a different approach. Embraced change and adapt to this new online platform. Focus on providing access to materials in an online environment by digitizing many of the collections. Also, promote the collections and exhibits virtually utilizing all social media outlets. Hosts webinars that feature speakers, authors and collection materials. We want our communities to stay engage and excited about reading and using libraries as a resource.
+</td>
+  <td>16</td>
+</tr>
+<tr class="initial-show">
+  <td>Patricia </td>
+  <td>Valdovinos</td>
+  <td>Librarian II - Multilingual Collections</td>
+  <td>Los Angeles Public Library</td>
+  <td>Los Angeles</td>
+  <td>CA</td>
+  <td>Public</td>
+  <td>Los Angeles Public Library, YA Bilingual Outreach Librarian – Youth Services - June 2018 - April 2019
+
+Yolo County Library, Programming &amp;amp; Outreach Librarian (Librarian II) - November 2016 - June 2018</td>
+  <td>University of California, Los Angeles (UCLA), Master’s in Library and Information Science (MLIS), 2016; University of California, Los Angeles (UCLA), BA Chicana/o Studies with Minors in American Indian Studies and Education Studies, 2014. </td>
+  <td>ALSC</td>
+  <td/>
+  <td>REFORMA</td>
+  <td>Yes</td>
+  <td>No</td>
+  <td>Reference and User Services Association (RUSA) Membership Engagement Committee 2017 – 2018; REFORMA/ALSC Pure Belpré Award Selection Committee 2018; REFORMA National Member At-Large Representative 2017 – 2019</td>
+  <td>REFORMA LA Vice President/President-Elect 2019-2020. </td>
+  <td>American Library Association (ALA) Spectrum Scholar 2014</td>
+  <td>Institute of Museum and Library Services (IMLS) National Leadership Grants for Libraries Program Reviewer (Phase 1) 2017; Institute of Museum and Library Services (IMLS) National Leadership Grants for Libraries Program Reviewer (Phase 2).
+
+</td>
+  <td/>
+  <td/>
+  <td>Patricia Valdovinos is the Multilingual Collections Librarian at the Los Angeles Public Library where she is part of a team responsible for selecting Spanish materials for all ages, translating materials, and developing content such as blog posts and social media posts for Spanish and bilingual-Spanish speaking communities. She is a recipient of the Spectrum Scholarship Program and is currently the Vice-President/President-Elect for the REFORMA Los Angeles Chapter. Her passion is to work for and with BIPOC and underrepresented communities. As a Councilor-At-Large, she will work towards dismantling the ideologies still in place that hinders progress.</td>
+  <td>6</td>
+</tr>
+<tr class="initial-show">
+  <td>Joan S. </td>
+  <td> Weeks</td>
+  <td>Head Librarian Near East Section</td>
+  <td>Library of Congress/African and Middle Eastern Division</td>
+  <td>Washington</td>
+  <td>DC</td>
+  <td>Government</td>
+  <td>Sr. Instruction Librarian Library of Congress Cooperative &amp;amp; Instructional Programs Division 2000-2015
+
+Reference Librarian Library of Congress Humanities and Social Sciences Division 1991-2000
+
+Adjunct Faculty Catholic University Dept. of Library and Information Science 2006-2016</td>
+  <td>Catholic University of America, School of Library and Information Science MSLS, Library Systems and Technology, 1998.
+American University, MA International Relations, Middle East Studies, 1974
+Marshall University, MA Education, 1969
+Wheeling College BA Political Science, 1965</td>
+  <td>ACRL
+ALCTS
+LITA
+RUSA
+LLAMA</td>
+  <td>Library Instruction Round Table (LIRT)</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>ALA Council Councilor-at-Large 2012 - 2021; ALA Committee on International Relations Member  2013-2015, 2017-2019; ALA Education Committee Member  2012-2014; Library Information Technology Association Member 2016-2020
+ALA Committee on Library Advocacy Member  2010 - 2012; International Relations Round Table Member  2002-2020, Chair 2008; International Library Development Interest Group co-founder 2002, chair 2002-2006, Member 2006-2020; Library Information Literacy Round Table 2018-2020.;
+ALA Committee on Library Advocacy Member </td>
+  <td>Beta Phi Mu Library Honor Society IOTA Chapter Member 1998 - Pres. 2009 President </td>
+  <td>Sustained Outstanding Performance – Library of Congress – 2001-2018, 2020
+Special Achievement Award – Library of Congress – 2008
+Special Achievement Award – Library of Congress – 2005
+Meritorious Service Award – Library of Congress – 1999
+Outstanding Graduate Award – CUA School of Lib.Sci. – 1998
+Beta Phi Mu Honor Society – CUA School of Lib.Sci. – 1998
+Meritorious Service Award – Library of Congress – 1993
+</td>
+  <td>I co-founded the International Sustainable Library Development Interest Group in the International Relations Round Table with a mission to raise awareness of and participation in global sustainable library development projects. We have changed the focus of many major international programs at ALA annual to library development issues. As chair of IRRT I worked with all the IRRT committee chairs to implement the 2007-2010 strategic plan by establishing stakeholders, timelines and milestones. We succeeded in implementing several strategic priorities while I was chair. I chaired the International Reception at the Library of Congress that Librarian of Congress hosted for international librarians during ALA Annual in DC in 2010. At the Library of Congress I developed many Cataloger's Desktop online webinars and instructional materials for worldwide users. For the School of Library Science at Catholic University I have taught "Information Literacy and Instructional Design," "Online Information Retrieval" and "Internet Searches and Web Design." As Head of the Near East Section I have led digitization and collection discovery projects</td>
+  <td>Joan S. Weeks, "Catch the International Library Development Bug!" Colorado Libraries, Issue 35, June 2011
+
+Joan S. Weeks, "Aspects of Persian Culture Professor Addresses 8,000 Year Legacy," [Seyyed Hossein Nasr], Library of Congress Information Bulletin (LCIB), Vol. 54, No. 16, September 4, 1995.
+
+Joan S. Weeks, "The Rule of Law: The Essential Ingredient for a Democratic Eastern Europe," [John D. Scanlon]" LCIB, Vol. 54, No. 22, December 11, 1995.
+</td>
+  <td>I am the IRRT webmaster at: http://www.ala.org/rt/irrt/. I also started and maintain the IRRT blog at: http://alairrt.blogspot.com/
+
+</td>
+  <td>If elected to council, I would work on ways to implement the full range of ALA strategic priorities especially with regard to diversity and inclusion by establishing stakeholders, timelines and targets with realistic milestones along the way.
+As adjunct faculty and area specialist librarian, I am concerned about the scarcity of resources allocated to libraries in communities with underserved populations both here and abroad, especially refugees. If elected to council I would raise awareness of global library development issues both in local communities as well as globally and develop grass roots advocacy strategies to bring pressure to bear on decision makers, as library budgets are under duress.
+I am also concerned about ongoing professional development for librarians and opportunities for minority students to enter the profession. I would like to work on reinvigorating Spectrum Scholarship program to increase grants to minority students.
+</td>
+  <td>22</td>
+</tr>
+<tr class="initial-show">
+  <td>Christine </td>
+  <td>Woods</td>
+  <td>Saint Leo University Regional Librarian, (Virginia, Mississippi, Texas, California)</td>
+  <td>Saint Leo University</td>
+  <td>Carrollton</td>
+  <td>VA</td>
+  <td>Academic</td>
+  <td>Teacher-Librarian, Kecoughtan High School, Hampton City Schools, 2007-2020
+
+School Library Media Specialist, Tabb Middle School, York County Schools, 1997-2007
+
+School Library Media Specialist, Waller Mill Elementary, York County Schools, 1994-1997</td>
+  <td>Catholic University of America, Masters of Library and Information Science, 1994
+Virginia Commonwealth University, Bachelors of Music, 1991</td>
+  <td>ACRL</td>
+  <td>Library Instruction Round Table (LIRT)</td>
+  <td/>
+  <td>No</td>
+  <td>No</td>
+  <td>ALA Member, 2018 - present
+ALA, LIRT Membership Committee, 2019-present
+ALA, ACRL 2021 Convention Lightning Talk Committee, 2019-Present</td>
+  <td>ALISE (Assoc. of Library and Information Science Education) member, 2020-present
+VLA, VLA-ACRL, 2018-present
+VAASL (Virginia AASL) member, 1994-present
+VAASL, York Region Director, 2013
+VAASL, York Region Director-Elect 2012
+Alpha Delta Kappa International Teacher Organization, Virginia ETA Chapter, President, 2018-2020
+Alpha Delta Kappa International Teacher Organization, Virginia ETA Chapter, President-Elect, 2016-2018
+SEVA (Southeastern Virginia) National Board Certified Teacher Network, Membership Chair, 2018-2020
+SEVA member, 2016-2020
+NEA, National Education Assoc., 1994-2020
+VEA, Virginia Education Assoc., 1994-2020
+HEA, Hampton Education Assoc., 2007-2020
+YEA, York Education Assoc., 1994-2007</td>
+  <td>`Fulbright Education Specialist, U.S. State Department, 2019-22
+
+Alpha Delta Kappa 2019 Scholarship $600
+
+Virginia ADK 2019 Scholarship $500
+
+Virginia Education Association Grant $250, 2018
+
+Southeast Region ADK Grant $500, 2018
+
+Virginia ADK Grant $400, 2017
+
+Hampton Education Foundation Grant $250, 2017
+
+VFW Post 3219 Teacher of the Year ($150), 2016
+
+National Board Certification Renewal, 2017
+
+VAASL SLMS of the Year, York Region, 2010
+
+Teacher of the Year, Kecoughtan High School, Hampton, VA, 2010
+
+National Board Certification Library Media K-12, 2007
+
+VEMA (VAASL) SLMS of the Year, York Region, 2007
+
+Japan Fulbright, 2005
+
+Japan Fulbright Memorial Fund Award, 2005
+</td>
+  <td>Fulbright Education Specialist, U.S. State Department, 2019-22.  For the next three years I will be available for countries who need help with projects related to school libraries, instructional technology and information literacy curriculum.  I was inspired to apply for this position because of my previous experience going to Japan in 2005 with a Fulbright grant for educators.
+
+I have received several grants recently.  I used the money to involve students in project-based learning; creating a Roman Garden with 4 Latin classes, 3 Engineering classes built a solar-powered charging station for the library garden area, 3 Art classes created murals.  Each project involved research, planning, presentations, self-evaluation, and amazing final real-world products.
+
+I have received several scholarships recently that I am using to continue my education by earning an E.D.D.
+
+I am National Board Certified Teacher, Library Media PK-12, have also served as an assessor for Pearson, mentored many teachers with the certification and renewal process.
+
+As a member of VAASL, I have been a presenter at many regional and state conferences.
+</td>
+  <td>“Supporting Students’ College and Career Research: Latest Tools and Tips.” School Library Connection. November/December, 2016, pp. 43-44.</td>
+  <td>I do not currently have a personal web page.  </td>
+  <td>I have worked my way up from elementary to undergraduate and graduate library instruction.  I have valuable PK-college teaching experience.  I am passionate about libraries and information literacy.  Information literacy is not just important for research and school assignments, but also for life and good citizenship.  As an information literate member of society students and people, in general, should be able to discern the differences in information sources and help prevent the spread of misinformation.  Strong school libraries staffed with librarians with ALA-accredited education are at the fore-front of information literacy instruction.  Along with public libraries and librarians, they are our only hope of a future information literate society.  As an academic librarian, I am connecting library services and resources to curriculum, and teaching concepts in information literacy that lead to civic engagement and academic achievement.</td>
+  <td>3</td>
+</tr>
+</table>
+</div>
+  <!-- Le JavaScripts -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  <script type="text/javascript">
+    var $j = jQuery.noConflict();
+
+    $j(document).ready(function() {
+
+      // Initialize All The Things
+      // ------------------------------------------------------------------------
+
+      var cells_spectrum_no = $j("tr td:nth-child(13):contains('No')");
+      var cells_el_no = $j("tr td:nth-child(14):contains('No')");
+      var cells_spectrum_yes = $j("tr td:nth-child(13):contains('Yes')");
+      var cells_el_yes = $j("tr td:nth-child(14):contains('Yes')");
+
+      var divisions_active = [];
+      var rts_active = [];
+      var caucuses_active = [];
+      var types_active = [];
+      var states_active = [];
+
+
+
+      // Set up some utility functions to DRY out our code
+      // ------------------------------------------------------------------------
+
+      var listify = function(table_cell) {
+        // Converts a table cell containing comma-separated values to an array,
+        // stripping spaces. Expects the values to be a list of acronyms
+        // (e.g. "ACRL, PLA").
+        return table_cell.html().split(/\s+/);
+      }
+
+      var listify_expanded = function(table_cell) {
+        // Converts a table cell containing comma-separated values to an array,
+        // stripping spaces. Expects the values to be a list of expanded forms
+        // with acronyms in parentheses (e.g. "Social Responsibilities Round
+        // Table (SRRT)").
+        var re = /\([A-Z]+\)/g;
+        var matches = table_cell.html().match(re);
+
+        if ( matches ) {
+          // We can't get the global match to pay attention to capture groups,
+          // so we have to actually strip off the parentheses. Ew.
+          matches = matches.map(function(match) { return match.slice(1, -1); })
+        }
+
+        return matches
+      }
+
+      var update_active_list = function(button, active_list) {
+        // Updates the list of active items in the given facet to add or remove
+        // the current item, depending on the status of the button just clicked.
+        var item = button.attr('id');
+        if ( button.hasClass('active') ) {
+          if (item == 'Core') {
+            active_list.push('LITA');
+            active_list.push('LLAMA');
+            active_list.push('ALCTS');
+          }
+          active_list.push(item);
+        } else {
+          var idx = active_list.indexOf(item);
+          active_list.splice(idx, 1);
+
+          if (item == 'Core') {
+            var idx = active_list.indexOf('LITA');
+            active_list.splice(idx, 1);
+            var idx = active_list.indexOf('LLAMA');
+            active_list.splice(idx, 1);
+            var idx = active_list.indexOf('ALCTS');
+            active_list.splice(idx, 1);
+          }
+        }
+      }
+
+      var intersect_lists = function(list1, list2) {
+          // Look at the intersection of this table cell's list of affiliations
+          // and the overall list of active affiliations. Do they have at least
+          // one in common? We only want to show table rows where the relevant
+          // cell has at least one of the user-selected affiliations.
+
+          if ( !list1 ) {
+            // If list1 is empty (e.g. the candidate doesn't belong to any RTs),
+            // the intersection is definitely empty.
+            return false;
+          }
+
+          var bool = $j.grep(list1, function(i) {
+              return $j.inArray(i, list2) > -1;
+          }).length > 0;
+          return bool;
+      }
+
+      var boolean_filter = function(button, facet) {
+        // Handles the binary filters (spectrum y/n and emerging leader y/n).
+        if (!(facet == 'spectrum') && !(facet=='el')) {
+          // Just in case, since eval() is a nuclear weapon.
+          return
+        }
+
+        button.toggleClass('active');
+        cells_no = eval("cells_" + facet + "_no");
+        cells_yes = eval("cells_" + facet + "_yes");
+
+        if ( button.hasClass('active') ) {
+          cells_no.parent('tr').addClass(facet + '-hide');
+          cells_yes.parent('tr').addClass(facet + '-show');
+        } else {
+          cells_no.parent('tr').removeClass(facet + '-hide');
+          cells_no.parent('tr').addClass(facet + '-show');
+        }
+      }
+
+
+
+      // Set up state filter buttons. Build them from the list of states actually
+      // represented rather than hand-coding a ton of states.
+      //
+      // ------------------------------------------------------------------------
+
+      var states = [];
+      var state_columns = $j("tr td:nth-child(6)");
+      state_columns.each(function() {
+        var state = $j(this).html();
+        if ( states.indexOf(state) < 0 && state != 'State' ) {
+          states[states.length] = state;
+        }
+      });
+      states.sort();
+
+      var state_filter = $j('#filter-states');
+      function createStateButtons(element, index, array) {
+        state_filter.append('<button type="button" class="btn btn-default" id="' + element + '">' + element +'</button> ');
+      }
+      states.forEach(createStateButtons);
+      state_filter.append("<p><em>(Not all states have candidates in this election.)</em></p>");
+
+
+
+      // On pageload all candidates are shown; the first time any filters are
+      // activated, they should be hidden, and then selectively revealed only
+      // where consistent with filters.
+      //
+      // ------------------------------------------------------------------------
+
+      $j('.filter-buttons button').click(function() {
+        $j('tr').removeClass('initial-show');
+      });
+
+
+
+      // Below here, we filter things when users click buttons.
+      // ------------------------------------------------------------------------
+
+      // Le multiselect facets --------------------------------------------------
+
+      function toggle_it(row, bool, specifier) {
+        if ( bool ) {
+          row.addClass(`${specifier}-show`);
+          row.removeClass(`${specifier}-hide`);
+        } else {
+          row.addClass(`${specifier}-hide`);
+          row.removeClass(`${specifier}-show`);
+        }
+      }
+
+      $j('#filter-divisions button').click(function() {
+        $j(this).toggleClass('active');
+
+        update_active_list($j(this), divisions_active);
+
+        // Examine the table cells containing division membership info.
+        var division_cells = $j('td:nth-child(10)');
+        division_cells.each(function() {
+          var row = $j(this).parent('tr'); // The row containing this cell.
+
+          var cell_divs = listify($j(this));
+          var bool = intersect_lists(cell_divs, divisions_active);
+
+          toggle_it(row, bool, 'division')
+        });
+      });
+
+      $j('#filter-rts button').click(function() {
+        $j(this).toggleClass('active');
+
+        update_active_list($j(this), rts_active);
+
+        var rt_cells = $j('td:nth-child(11)');
+
+        rt_cells.each(function() {
+          var row = $j(this).parent('tr'); // The row containing this cell.
+
+          var cell_rts = listify_expanded($j(this));
+          var bool = intersect_lists(cell_rts, rts_active);
+
+          toggle_it(row, bool, 'rt')
+        });
+      });
+
+      $j('#filter-caucuses button').click(function() {
+        $j(this).toggleClass('active');
+
+        update_active_list($j(this), caucuses_active);
+
+        var caucus_cells = $j("tr td:nth-child(12)");
+        caucus_cells.each(function() {
+          var row = $j(this).parent('tr'); // The row containing this cell.
+
+          var cell_caucuses = listify($j(this));
+          var bool = intersect_lists(cell_caucuses, caucuses_active);
+
+          toggle_it(row, bool, 'caucus')
+        });
+      });
+
+      $j('#filter-types button').click(function() {
+        $j(this).toggleClass('active');
+
+        update_active_list($j(this), types_active);
+
+        var type_cells = $j("tr td:nth-child(7)");
+
+        type_cells.each(function() {
+          var row = $j(this).parent('tr'); // The row containing this cell.
+
+          var cell_types = listify($j(this));
+
+          // Anything other than Academic, Public, or School maps to Other.
+          cell_types = cell_types.map(function(type) {
+            if ( type == 'Academic' || type == 'Public' || type == 'School' ) {
+              return type
+            } else {
+              return 'Other'
+            }
+          });
+
+          var bool = intersect_lists(cell_types, types_active);
+
+          toggle_it(row, bool, 'type')
+        });
+      });
+
+      $j('#filter-states button').click(function() {
+        $j(this).toggleClass('active');
+
+        update_active_list($j(this), states_active);
+
+        var state_cells = $j("tr td:nth-child(6)");
+
+        state_cells.each(function() {
+          var row = $j(this).parent('tr'); // The row containing this cell.
+
+          var cell_divs = listify($j(this));
+          var bool = intersect_lists(cell_divs, states_active);
+
+          toggle_it(row, bool, 'state')
+        });
+      });
+
+      // Le boolean facets ------------------------------------------------------
+
+      $j('#spectrum').click(function () {
+        boolean_filter($j(this), 'spectrum');
+      });
+
+      $j('#EL').click(function () {
+        boolean_filter($j(this), 'el');
+      });
+
+    });
+  </script>
+  </body>
+</html>
